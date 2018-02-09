@@ -3,7 +3,7 @@
 Collecting highscores in old games? Why not collect scores for collecting scores in old games?
 
 ## Requirements
-1. Download [any release](releases/) of this project
+1. Download [any release](../../releases/) of this project
 2. Extract the contents into an empty folder
 3. Set up all potential emulators (see [Setting up emulators](#setting-up-emulators))
 4. Run `arcadearcade/arcadearcade.exe`
