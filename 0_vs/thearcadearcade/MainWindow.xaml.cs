@@ -39,7 +39,7 @@ namespace thearcadearcade
             public int BaseAddress;
             public int AllocationBase;
             public int AllocationProtect;
-            public int RegionSize;
+            public uint RegionSize;
             public int State;
             public int Protect;
             public int lType;
@@ -50,8 +50,8 @@ namespace thearcadearcade
             public ushort processorArchitecture;
             ushort reserved;
             public uint pageSize;
-            public IntPtr minimumApplicationAddress;
-            public IntPtr maximumApplicationAddress;
+            public UIntPtr minimumApplicationAddress;
+            public UIntPtr maximumApplicationAddress;
             public IntPtr activeProcessorMask;
             public uint numberOfProcessors;
             public uint processorType;
@@ -86,7 +86,7 @@ namespace thearcadearcade
         string ProcessName;
         Process Process;
         IntPtr ProcessHandle;
-        IntPtr[] ProcessAddressSpan = new IntPtr[2];
+        UIntPtr[] ProcessAddressSpan = new UIntPtr[2];
 
         int BaseGameMemoryAddress;
 
@@ -123,8 +123,8 @@ namespace thearcadearcade
 
         void GetLookupValue(out byte[] expectedValue)
         {
-            expectedValue = new byte[2008];
-            for (int i = 0; i < 2008; i++)
+            expectedValue = new byte[0x3CF];
+            for (int i = 0; i < 0x3CF; i++)
             {
                 expectedValue[i] = 0xff;
             }
@@ -132,7 +132,7 @@ namespace thearcadearcade
 
         int GetBaseMemoryOffset()
         {
-            return 208;
+            return 0xC8;
         }
 
         /// <summary>
