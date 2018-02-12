@@ -60,7 +60,7 @@ namespace thearcadearcade
             public ushort processorRevision;
         }
     }
-
+    
     partial class Emulator
     {
         public enum State
@@ -83,8 +83,18 @@ namespace thearcadearcade
             }
         }
 
-        string ProcessName;
-        Process Process;
+        string platformName;
+        public string PlatformName
+        {
+            get { return platformName; }
+        }
+
+        string loadedGame;
+        public string LoadedGame
+        {
+            get { return loadedGame; }
+        }
+        Process CurrentProcess;
         IntPtr ProcessHandle;
         UIntPtr[] ProcessAddressSpan = new UIntPtr[2];
 
@@ -93,13 +103,7 @@ namespace thearcadearcade
         /// <summary>
         /// Sets up Process- and Process-handle-container
         /// </summary>
-        /// <returns>
-        /// Return codes:
-        /// 0 = success
-        /// 1 = more than 1 instance of the emulator is running
-        /// 2 = no instance of the emulator is running
-        /// </returns>
-        int SetupProcessHandle()
+        void SetupProcessHandle()
         {
             // getting minimum & maximum address
             WinAPI.SYSTEM_INFO sys_info = new WinAPI.SYSTEM_INFO();
@@ -108,17 +112,7 @@ namespace thearcadearcade
             ProcessAddressSpan[0] = sys_info.minimumApplicationAddress;
             ProcessAddressSpan[1] = sys_info.maximumApplicationAddress;
 
-            // grab the process
-            Process[] processes = Process.GetProcessesByName(ProcessName);
-            if (processes.Length == 1)
-            {
-                // opening the process with desired access level
-                Process = processes[0];
-                ProcessHandle = WinAPI.OpenProcess(WinAPI.PROCESS_QUERY_INFORMATION | WinAPI.PROCESS_WM_READ, false, Process.Id);
-                return 0;
-            }
-
-            return processes.Length > 1 ? 1 : 2;
+            ProcessHandle = WinAPI.OpenProcess(WinAPI.PROCESS_QUERY_INFORMATION | WinAPI.PROCESS_WM_READ, false, CurrentProcess.Id);
         }
 
         void GetLookupValue(out byte[] expectedValue)
@@ -142,6 +136,7 @@ namespace thearcadearcade
         /// Return codes:
         /// 0 = success
         /// 1 = couldn't find the base address (result will be -1)
+        /// 2 = error querying process info
         /// </returns>
         int SetBaseMemory()
         {
@@ -154,6 +149,14 @@ namespace thearcadearcade
                 IntPtr currentProcessAddressPtr = new IntPtr(currentProcessAddress);
                 // 28 = sizeof(MEMORY_BASIC_INFORMATION)
                 WinAPI.VirtualQueryEx(ProcessHandle, currentProcessAddressPtr, out mem_basic_info, 28);
+
+                int win32Error = Marshal.GetLastWin32Error();
+                if (win32Error != 0)
+                {
+                    Console.WriteLine("Error querying process info: Error code {0}", win32Error);
+                    CurrentState = State.ERROR;
+                    return 2;
+                }
 
                 // if this memory chunk is accessible
                 if (mem_basic_info.Protect == WinAPI.PAGE_READWRITE && mem_basic_info.State == WinAPI.MEM_COMMIT)
@@ -196,38 +199,120 @@ namespace thearcadearcade
             return bytesRead == 0 ? 1 : 0;
         }
 
-        public Emulator(string processName)
+        public Emulator(string _platformName)
         {
-            ProcessName = processName;
+            platformName = _platformName;
+            if (!StartProcess(""))
+            {
+                CurrentState = State.ERROR;
+                Console.WriteLine(string.Format("Error starting emulator process {0}", platformName));
+                return;
+            }
+            CurrentState = State.INITIALIZING;
+            TryToAttachToProcess();
+        }
 
-            int processHandleStatusCode = SetupProcessHandle();
-            if (SetupProcessHandle() != 0)
+        ~Emulator()
+        {
+            CurrentProcess.Kill();
+        }
+
+        bool StartProcess(string commandLineArguments)
+        {
+            CurrentProcess = new Process();
+            CurrentProcess.StartInfo.FileName = platformName;
+            CurrentProcess.StartInfo.Arguments= commandLineArguments;
+            // resolve emulator name from platform
+            try
             {
-                Console.WriteLine("Error setting up process handles: " + processHandleStatusCode);
-                CurrentState = State.ERROR;
+                return CurrentProcess.Start();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(string.Format("Error starting emulator process {0}: {1}", platformName, e.ToString()));
+                return false;
+            }
+        }
+
+        void TryToAttachToProcess()
+        {
+            var task = Task.Run(async () =>
+            {
+                do
+                {
+                    SetupProcessHandle();
+                    int baseMemorySetupStatusCode = SetBaseMemory();
+                    if (baseMemorySetupStatusCode != 0)
+                    {
+                        Console.WriteLine("Couldn't find base memory; is there already a game running?");
+                        await Task.Delay(17);
+                        continue;
+                    }
+
+                    CurrentState = State.READY;
+                    await Task.Delay(17);
+                    break;
+                }
+                while (true);
+            });
+        }
+
+        /// <summary>
+        /// Start a game using this emulator
+        /// </summary>
+        /// <param name="game">Game to start</param>
+        /// <returns>
+        /// Return code:
+        /// 0 = success
+        /// 1 = Emulator platform and game platform do not match!
+        /// </returns>
+        public void StartGame(Game game)
+        {
+            if (game.PlatformName != this.PlatformName)
+            {
                 return;
             }
-            int baseMemorySetupStatusCode = SetBaseMemory();
-            if (baseMemorySetupStatusCode != 0)
-            {
-                Console.WriteLine("Couldn't find base memory; is there already a game running?");
-                CurrentState = State.ERROR;
-                return;
-            }
-            CurrentState = State.READY;
+
+            loadedGame = game.GameName;
+            StartProcess(game.GameName);
         }
     }
 
     class Nestopia : Emulator
     {
         public Nestopia()
-            : base("Nestopia")
+            : base("C:/Users/vmahnke/Desktop/em/0_git/1_dependencies/platforms/nes/executable/nestopia.exe")
         {
         }
     }
 
-    class SMB : INotifyPropertyChanged
+    partial class Game
     {
+        public string GameName
+        {
+            get { return gameName; }
+        }
+        string gameName;
+        public string PlatformName
+        {
+            get { return platformName; }
+        }
+        string platformName;
+        public Game(string _gameName, string _platformName)
+        {
+            gameName = _gameName;
+            platformName = _platformName;
+        }
+    }
+
+    class SMB : Game, INotifyPropertyChanged
+    {
+        public SMB()
+            : base("C:/Users/vmahnke/Desktop/em/0_git/1_dependencies/scenes/game1/rom.nes", "C:/Users/vmahnke/Desktop/em/0_git/1_dependencies/platforms/nes/executable/nestopia.exe")
+        {
+
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -296,14 +381,16 @@ namespace thearcadearcade
 
     public partial class MainWindow : Window
     {
-        Nestopia emu = new Nestopia();
-        SMB smb = new SMB();
         public MainWindow()
         {
             InitializeComponent();
+
+            Nestopia emu = new Nestopia();
+            SMB smb = new SMB();
+
             this.DataContext = smb;
 
-            var task = Task.Run(async () => {
+            Task task = Task.Run(async () => {
                 do
                 {
                     smb.CurrentState = emu.CurrentState;
@@ -313,8 +400,9 @@ namespace thearcadearcade
                         byte[] isReadyFlag = new byte[1];
                         emu.ReadGameMemory(0, 1, out isReadyFlag);
 
-                        if (isReadyFlag[0] != 0xFF)
+                        if (isReadyFlag[0] == 0xFF)
                         {
+                            emu.StartGame(smb);
                             emu.CurrentState = Emulator.State.RUNNING;
                         }
                     }
