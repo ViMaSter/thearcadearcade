@@ -3,12 +3,17 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         xmlns:local="clr-namespace:thearcadearcade"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="0*"/>
+        </Grid.ColumnDefinitions>
         <Label x:Name="emulatorStateLabel" Content="Emulator state:" HorizontalAlignment="Left" Margin="21,20,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="emulatorStateValue" Content="{Binding Path=CurrentStateText}" HorizontalAlignment="Left" Margin="122,20,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="emulatorStateValue" Content="{Binding Path=Emulator.CurrentState}" HorizontalAlignment="Left" Margin="122,20,0,0" VerticalAlignment="Top"/>
         <GroupBox x:Name="groupBox" Header="GroupBox" HorizontalAlignment="Left" Margin="21,78,0,0" VerticalAlignment="Top" Height="231" Width="486">
             <Grid HorizontalAlignment="Left" Height="221" VerticalAlignment="Top" Width="476" Margin="0,0,-2,-12">
                 <Grid.ColumnDefinitions>
@@ -17,8 +22,8 @@
                 </Grid.ColumnDefinitions>
                 <Label x:Name="coinsLabel" Content="Current coins:&#xD;&#xA;" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="26"/>
                 <Label x:Name="timeLabel" Content="Time left" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" Width="83"/>
-                <Label x:Name="coinsValue"  Content="{Binding Path=CurrentCoins}" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="26" Grid.Column="1"/>
-                <Label x:Name="timeValue" Content="{Binding Path=CurrentTime}" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" Width="83" Grid.Column="1"/>
+                <Label x:Name="coinsValue"  Content="{Binding Path=Coins}" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="26" Grid.Column="1"/>
+                <Label x:Name="timeValue" Content="{Binding Path=Time}" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" Width="83" Grid.Column="1"/>
             </Grid>
         </GroupBox>
 

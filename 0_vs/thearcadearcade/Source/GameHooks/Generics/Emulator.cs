@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
@@ -34,6 +35,12 @@ namespace thearcadearcade.GameHooks
         public string Platform
         {
             get { return platform; }
+        }
+
+        string pathToExecutable;
+        public string PathToExecutable
+        {
+            get { return pathToExecutable; }
         }
 
         Game loadedGame;
@@ -133,7 +140,7 @@ namespace thearcadearcade.GameHooks
         bool StartProcess(string commandLineArguments)
         {
             Process process = new Process();
-            process.StartInfo.FileName = platform;
+            process.StartInfo.FileName = pathToExecutable;
             process.StartInfo.Arguments = commandLineArguments;
             // resolve emulator name from platform
             try
@@ -146,7 +153,7 @@ namespace thearcadearcade.GameHooks
             }
             catch (Exception e)
             {
-                Console.WriteLine(string.Format("Error starting emulator process {0}: {1}", platform, e.ToString()));
+                Console.WriteLine(string.Format("Error starting emulator process {0}: {1}", pathToExecutable, e.ToString()));
                 return false;
             }
         }
@@ -212,7 +219,7 @@ namespace thearcadearcade.GameHooks
             }
 
             loadedGame = game;
-            if (!StartProcess(game.Name))
+            if (!StartProcess(Path.Combine(Directory.GetCurrentDirectory(), "platforms\\nes\\games\\", game.Filename)))
             {
                 return 2;
             }
@@ -220,9 +227,10 @@ namespace thearcadearcade.GameHooks
             return 0;
         }
 
-        public Emulator(string _platformName)
+        public Emulator(string _platform, string _pathToExecutable)
         {
-            platform = _platformName;
+            platform = _platform;
+            pathToExecutable = _pathToExecutable;
             if (!StartProcess(""))
             {
                 CurrentState = State.ERROR;
