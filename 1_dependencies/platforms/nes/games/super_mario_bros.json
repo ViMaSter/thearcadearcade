@@ -2,6 +2,7 @@
     "name": "Super Mario Bros.",
     "region": "NTSC",
     "platform": "NES",
+    "filename": "super_mario_bros.nes",
     "memoryAreas":
     {
         "coins":

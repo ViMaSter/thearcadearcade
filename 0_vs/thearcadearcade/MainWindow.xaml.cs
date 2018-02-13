@@ -17,139 +17,133 @@ namespace thearcadearcade
     class Nestopia : GameHooks.Emulator
     {
         public Nestopia()
-            : base("C:/Users/vmahnke/Desktop/em/0_git/1_dependencies/platforms/nes/executable/nestopia.exe")
+            : base("NES", "C:/Users/vmahnke/Desktop/em/0_git/1_dependencies/platforms/nes/executable/nestopia.exe")
         {
         }
     }
 
-    class SMB : GameHooks.Game, INotifyPropertyChanged
+    class SampleWindowData : INotifyPropertyChanged
     {
-        public SMB()
-            : base("C:/Users/vmahnke/Desktop/em/0_git/1_dependencies/scenes/game1/rom.nes", "NTSC", "C:/Users/vmahnke/Desktop/em/0_git/1_dependencies/platforms/nes/executable/nestopia.exe")
+        private GameHooks.Game gameMemory;
+        public GameHooks.Game GameMemory
         {
+            get
+            {
+                return gameMemory;
+            }
+            set
+            {
+                gameMemory = value;
+                PropertyChangedEventHandler eh = new PropertyChangedEventHandler(ChildChanged);
+                gameMemory.PropertyChanged += eh;
+                OnPropertyChanged("gameMemory");
+            }
+        }
+        private void ChildChanged(object sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged("gameMemory");
+        }
 
+        private GameHooks.Emulator emulator;
+        public GameHooks.Emulator Emulator
+        {
+            get
+            {
+                return emulator;
+            }
+            set
+            {
+                emulator = value;
+            }
+        }
+
+        private int coins;
+        public int Coins
+        {
+            get
+            {
+                return coins;
+            }
+            set
+            {
+                coins = value;
+                OnPropertyChanged("Coins");
+            }
+        }
+
+        private string time;
+        public string Time
+        {
+            get
+            {
+                return time;
+            }
+            set
+            {
+                time = value;
+                OnPropertyChanged("Time");
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        public void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private int currentCoins = 0;
-        public int CurrentCoins
-        {
-            get
-            {
-                return currentCoins;
-            }
-            set
-            {
-                if (currentCoins != value)
-                {
-                    currentCoins = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        private string currentTime = "";
-        public string CurrentTime
-        {
-            get
-            {
-                return currentTime;
-            }
-            set
-            {
-                if (currentTime != value)
-                {
-                    currentTime = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        private GameHooks.Emulator.State currentState = GameHooks.Emulator.State.ERROR;
-        public GameHooks.Emulator.State CurrentState
-        {
-            get
-            {
-                return currentState;
-            }
-            set
-            {
-                if (currentState != value)
-                {
-                    currentState = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged("CurrentStateText");
-                }
-            }
-        }
-        public string CurrentStateText
-        {
-            get
-            {
-                return currentState.ToString();
-            }
         }
     }
 
     public partial class MainWindow : Window
     {
+        SampleWindowData windowData = new SampleWindowData();
         public MainWindow()
         {
             InitializeComponent();
 
-            Nestopia emu = new Nestopia();
-            SMB smb = new SMB();
+            windowData.Emulator = new Nestopia();
+            windowData.GameMemory = GameHooks.Game.FromJSON(File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "platforms\\nes\\games\\super_mario_bros.json")));
+            GameHooks.Game game = new GameHooks.Game("Super Mario", "NTSC", "NES");
+            string a = game.ToJSON();
 
-            this.DataContext = smb;
+            this.DataContext = windowData;
 
             Task task = Task.Run(async () => {
                 do
                 {
-                    smb.CurrentState = emu.CurrentState;
+                    windowData.Emulator.CurrentState = windowData.Emulator.CurrentState;
 
-                    if (emu.CurrentState == GameHooks.Emulator.State.READY)
+                    if (windowData.Emulator.CurrentState == GameHooks.Emulator.State.READY)
                     {
                         byte[] isReadyFlag = new byte[1];
-                        emu.ReadGameMemory(0, 1, out isReadyFlag);
+                        windowData.Emulator.ReadGameMemory(0, 1, out isReadyFlag);
 
                         if (isReadyFlag[0] == 0xFF)
                         {
-                            int gameStartStatus = emu.StartGame(smb);
+                            int gameStartStatus = windowData.Emulator.StartGame(windowData.GameMemory);
                             if (gameStartStatus == 0)
                             {
-                                emu.CurrentState = GameHooks.Emulator.State.RUNNING;
+                                windowData.Emulator.CurrentState = GameHooks.Emulator.State.RUNNING;
                             }
                             else
                             {
-                                Console.WriteLine("Couldn't launch game {0}: Error code {1}", smb.Name, gameStartStatus);
-                                emu.CurrentState = GameHooks.Emulator.State.ERROR;
+                                Console.WriteLine("Couldn't launch game {0}: Error code {1}", windowData.GameMemory.Name, gameStartStatus);
+                                windowData.Emulator.CurrentState = GameHooks.Emulator.State.ERROR;
                             }
                         }
                     }
 
-                    if (emu.CurrentState != GameHooks.Emulator.State.RUNNING)
+                    if (windowData.Emulator.CurrentState != GameHooks.Emulator.State.RUNNING)
                     {
                         continue;
                     }
 
-                    GameHooks.MemoryArea coins = new GameHooks.MemoryArea(0x746, 1);
-                    smb.CurrentCoins = coins.GetByte(emu);
-                    GameHooks.MemoryArea time1 = new GameHooks.MemoryArea(0x7E0, 1);
-                    GameHooks.MemoryArea time2 = new GameHooks.MemoryArea(0x7E1, 1);
-                    GameHooks.MemoryArea time3 = new GameHooks.MemoryArea(0x7E2, 1);
+                    windowData.Coins = new GameHooks.MemoryArea(0x746, 1).GetByte(windowData.Emulator);
                     byte[] timeBytes =
                     {
-                        time1.GetByte(emu),
-                        time2.GetByte(emu),
-                        time3.GetByte(emu)
+                        new GameHooks.MemoryArea(0x7E0, 1).GetByte(windowData.Emulator),
+                        new GameHooks.MemoryArea(0x7E1, 1).GetByte(windowData.Emulator),
+                        new GameHooks.MemoryArea(0x7E2, 1).GetByte(windowData.Emulator)
                     };
-                    smb.CurrentTime = string.Format("{0}{1}{2}", timeBytes[0], timeBytes[1], timeBytes[2]);
-
+                    windowData.Time = string.Format("{0}{1}{2}", timeBytes[0], timeBytes[1], timeBytes[2]);
                     await Task.Delay(17);
                 } while (true);
             });

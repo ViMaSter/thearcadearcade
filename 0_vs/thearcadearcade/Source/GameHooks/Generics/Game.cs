@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Newtonsoft.Json;
 
 namespace thearcadearcade.GameHooks
 {
     class MemoryArea
     {
+        [JsonProperty("memoryRangeStart")]
         int MemoryRangeStart;
+        [JsonProperty("memoryRangeLength")]
         int MemoryRangeLength;
 
         public MemoryArea(int memoryRangeStart, int memoryRangeLength)
@@ -94,26 +97,38 @@ namespace thearcadearcade.GameHooks
         }
     }
 
-    partial class Game
+    public class Game : INotifyPropertyChanged
     {
-        public string Name
+        internal string Name
         {
             get { return name; }
         }
+
+        [JsonProperty()]
         string name;
-        public string Region
+        internal string Region
         {
             get { return region; }
         }
+        [JsonProperty()]
         string region;
 
-        public string Platform
+        internal string Platform
         {
             get { return platform; }
         }
+        [JsonProperty()]
         string platform;
 
-        Dictionary<string, MemoryArea> memoryAreas;
+        internal string Filename
+        {
+            get { return filename; }
+        }
+        [JsonProperty()]
+        string filename;
+
+        [JsonProperty()]
+        Dictionary<string, MemoryArea> memoryAreas = new Dictionary<string, MemoryArea>();
         Dictionary<string, MemoryArea> GetAllMemoryAreas()
         {
             return memoryAreas;
@@ -128,6 +143,12 @@ namespace thearcadearcade.GameHooks
             name = _name;
             region = _region;
             platform = _platform;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string propName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
         }
 
         public static Game FromJSON(string jsonString)
