@@ -30,14 +30,14 @@ namespace thearcadearcade.GameHooks
             }
         }
 
-        string platformName;
-        public string PlatformName
+        string platform;
+        public string Platform
         {
-            get { return platformName; }
+            get { return platform; }
         }
 
-        string loadedGame;
-        public string LoadedGame
+        Game loadedGame;
+        public Game LoadedGame
         {
             get { return loadedGame; }
         }
@@ -133,7 +133,7 @@ namespace thearcadearcade.GameHooks
         bool StartProcess(string commandLineArguments)
         {
             Process process = new Process();
-            process.StartInfo.FileName = platformName;
+            process.StartInfo.FileName = platform;
             process.StartInfo.Arguments = commandLineArguments;
             // resolve emulator name from platform
             try
@@ -146,7 +146,7 @@ namespace thearcadearcade.GameHooks
             }
             catch (Exception e)
             {
-                Console.WriteLine(string.Format("Error starting emulator process {0}: {1}", platformName, e.ToString()));
+                Console.WriteLine(string.Format("Error starting emulator process {0}: {1}", platform, e.ToString()));
                 return false;
             }
         }
@@ -206,13 +206,13 @@ namespace thearcadearcade.GameHooks
         /// </returns>
         public int StartGame(Game game)
         {
-            if (game.PlatformName != this.PlatformName)
+            if (game.Platform != this.Platform)
             {
                 return 1;
             }
 
-            loadedGame = game.GameName;
-            if (!StartProcess(game.GameName))
+            loadedGame = game;
+            if (!StartProcess(game.Name))
             {
                 return 2;
             }
@@ -222,11 +222,11 @@ namespace thearcadearcade.GameHooks
 
         public Emulator(string _platformName)
         {
-            platformName = _platformName;
+            platform = _platformName;
             if (!StartProcess(""))
             {
                 CurrentState = State.ERROR;
-                Console.WriteLine(string.Format("Error starting emulator process {0}", platformName));
+                Console.WriteLine(string.Format("Error starting emulator process {0}", platform));
                 return;
             }
             CurrentState = State.INITIALIZING;
