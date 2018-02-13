@@ -1,0 +1,28 @@
+{
+    "name": "Super Mario Bros.",
+    "region": "NTSC",
+    "platform": "NES",
+    "memoryAreas":
+    {
+        "coins":
+        {
+            "memoryRangeStart": 1862,
+            "memoryRangeLength": 1,
+        },
+        "timer1stDigit":
+        {
+            "memoryRangeStart": 2016,
+            "memoryRangeLength": 1,
+        },
+        "coins2ndDigit":
+        {
+            "memoryRangeStart": 2017,
+            "memoryRangeLength": 1,
+        },
+        "coins3rdDigit":
+        {
+            "memoryRangeStart": 2018,
+            "memoryRangeLength": 1,
+        }
+    }
+}

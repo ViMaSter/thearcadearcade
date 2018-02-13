@@ -25,7 +25,7 @@ namespace thearcadearcade
     class SMB : GameHooks.Game, INotifyPropertyChanged
     {
         public SMB()
-            : base("C:/Users/vmahnke/Desktop/em/0_git/1_dependencies/scenes/game1/rom.nes", "C:/Users/vmahnke/Desktop/em/0_git/1_dependencies/platforms/nes/executable/nestopia.exe")
+            : base("C:/Users/vmahnke/Desktop/em/0_git/1_dependencies/scenes/game1/rom.nes", "NTSC", "C:/Users/vmahnke/Desktop/em/0_git/1_dependencies/platforms/nes/executable/nestopia.exe")
         {
 
         }
@@ -126,7 +126,7 @@ namespace thearcadearcade
                             }
                             else
                             {
-                                Console.WriteLine("Couldn't launch game {0}: Error code {1}", smb.GameName, gameStartStatus);
+                                Console.WriteLine("Couldn't launch game {0}: Error code {1}", smb.Name, gameStartStatus);
                                 emu.CurrentState = GameHooks.Emulator.State.ERROR;
                             }
                         }
@@ -137,13 +137,18 @@ namespace thearcadearcade
                         continue;
                     }
 
-                    byte[] coin = new byte[1];
-                    byte[] time = new byte[3];
-                    emu.ReadGameMemory(0x746, 1, out coin);
-                    emu.ReadGameMemory(0x7E0, 3, out time);
-
-                    smb.CurrentCoins = coin[0];
-                    smb.CurrentTime = string.Format("{0}{1}{2}", time[0], time[1], time[2]);
+                    GameHooks.MemoryArea coins = new GameHooks.MemoryArea(0x746, 1);
+                    smb.CurrentCoins = coins.GetByte(emu);
+                    GameHooks.MemoryArea time1 = new GameHooks.MemoryArea(0x7E0, 1);
+                    GameHooks.MemoryArea time2 = new GameHooks.MemoryArea(0x7E1, 1);
+                    GameHooks.MemoryArea time3 = new GameHooks.MemoryArea(0x7E2, 1);
+                    byte[] timeBytes =
+                    {
+                        time1.GetByte(emu),
+                        time2.GetByte(emu),
+                        time3.GetByte(emu)
+                    };
+                    smb.CurrentTime = string.Format("{0}{1}{2}", timeBytes[0], timeBytes[1], timeBytes[2]);
 
                     await Task.Delay(17);
                 } while (true);

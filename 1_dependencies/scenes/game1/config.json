@@ -1,34 +1,49 @@
 {
     "name": "Game 1",
-    "description": "Example game counting the coins of the european version of Super Mario Bros. 1 until the timer is <= 300",
+    "description": "Example game adding 5 points per coin in the NTSC version of Super Mario Bros. 1, until the timer is <= 300 or 20 coins are collected",
     "game":
     {
+        "name": "Super Mario Bros.",
+        "region": "NTSC",
         "score":
         {
-            "address": "0x00000746",
-            "multiplier": 1
+            "value": "coins",
+            "multiplier": 5
         },
-        "endcondition":
-        {
-            "operator": "AND",
-            "memoryState":
-            [
-                {
-                    "address": "0x000007E0",
-                    "comparision": "<=",
-                    "value": 3
-                }
-                {
-                    "address": "0x000007E1",
-                    "comparision": "<=",
-                    "value": 0
-                }
-                {
-                    "address": "0x000007E2",
-                    "comparision": "<=",
-                    "value": 0
-                }
-            ]
-        }
+        "endconditions":
+        [
+            {
+                "operator": "AND",
+                "memoryState":
+                [
+                    {
+                        "value": "timer1stDigit",
+                        "comparision": "<=",
+                        "value": 3
+                    }
+                    {
+                        "value": "coins2ndDigit",
+                        "comparision": "<=",
+                        "value": 0
+                    }
+                    {
+                        "value": "coins3rdDigit",
+                        "comparision": "<=",
+                        "value": 0
+                    }
+                ]
+            },
+            {
+                "operator": "AND",
+                "memoryState":
+                [
+                    {
+                        "value": "coins",
+                        "comparision": ">=",
+                        "value": 20
+                    }
+                ]
+            }
+        ]
     }
 }
