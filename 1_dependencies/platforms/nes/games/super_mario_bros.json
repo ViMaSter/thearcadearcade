@@ -15,12 +15,12 @@
             "memoryRangeStart": 2016,
             "memoryRangeLength": 1,
         },
-        "coins2ndDigit":
+        "timer2ndDigit":
         {
             "memoryRangeStart": 2017,
             "memoryRangeLength": 1,
         },
-        "coins3rdDigit":
+        "timer3rdDigit":
         {
             "memoryRangeStart": 2018,
             "memoryRangeLength": 1,
