@@ -1,0 +1,24 @@
+{
+    "name": "Contra",
+    "region": "NTSC",
+    "platform": "NES",
+    "filename": "contra.nes",
+    "memoryAreas":
+    {
+        "weapon":
+        {
+            "memoryRangeStart": 146,
+            "memoryRangeLength": 1
+        },
+        "kills":
+        {
+            "memoryRangeStart": 2018,
+            "memoryRangeLength": 1
+        },
+        "lives":
+        {
+            "memoryRangeStart": 26,
+            "memoryRangeLength": 1
+        }
+    }
+}
