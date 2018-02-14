@@ -101,8 +101,6 @@ namespace thearcadearcade
 
             windowData.Emulator = new Nestopia();
             windowData.GameMemory = GameHooks.Game.FromJSON(File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "platforms\\nes\\games\\super_mario_bros.json")));
-            GameHooks.Game game = new GameHooks.Game("Super Mario", "NTSC", "NES");
-            string a = game.ToJSON();
 
             this.DataContext = windowData;
 
@@ -136,12 +134,12 @@ namespace thearcadearcade
                         continue;
                     }
 
-                    windowData.Coins = new GameHooks.MemoryArea(0x746, 1).GetByte(windowData.Emulator);
+                    windowData.Coins = windowData.GameMemory.GetMemoryArea("coins").GetByte(windowData.Emulator);
                     byte[] timeBytes =
                     {
-                        new GameHooks.MemoryArea(0x7E0, 1).GetByte(windowData.Emulator),
-                        new GameHooks.MemoryArea(0x7E1, 1).GetByte(windowData.Emulator),
-                        new GameHooks.MemoryArea(0x7E2, 1).GetByte(windowData.Emulator)
+                        windowData.GameMemory.GetMemoryArea("timer1stDigit").GetByte(windowData.Emulator),
+                        windowData.GameMemory.GetMemoryArea("timer2ndDigit").GetByte(windowData.Emulator),
+                        windowData.GameMemory.GetMemoryArea("timer3rdDigit").GetByte(windowData.Emulator)
                     };
                     windowData.Time = string.Format("{0}{1}{2}", timeBytes[0], timeBytes[1], timeBytes[2]);
                     await Task.Delay(17);
