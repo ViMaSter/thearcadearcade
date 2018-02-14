@@ -242,8 +242,11 @@ namespace thearcadearcade.GameHooks
         }
 
         ~Emulator()
-        {
-            CurrentProcess.Kill();
+        { 
+            if (!CurrentProcess.HasExited)
+            {
+               CurrentProcess.Kill();
+            }
         }
     }
 }

@@ -65,9 +65,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Source\GameHooks\Generics\Game.cs" />
-    <Compile Include="Source\GameHooks\Generics\Emulator.cs" />
+    <Compile Include="Source\GameHooks\Emulator.cs" />
+    <Compile Include="Source\GameHooks\Game.cs" />
     <Compile Include="Source\Helper\WinAPI.cs" />
+    <Compile Include="Source\Library\PlatformGameList.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
