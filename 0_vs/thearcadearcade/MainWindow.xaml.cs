@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -13,7 +13,6 @@ using System.Windows.Data;
 
 namespace thearcadearcade
 {
-
     class Nestopia : GameHooks.Emulator
     {
         public Nestopia()
@@ -100,7 +99,17 @@ namespace thearcadearcade
             InitializeComponent();
 
             windowData.Emulator = new Nestopia();
-            windowData.GameMemory = GameHooks.Game.FromJSON(File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "platforms\\nes\\games\\super_mario_bros.json")));
+
+            Dictionary<string, Library.PlatformGameList> gamesPerPlatform = new Dictionary<string, Library.PlatformGameList>();
+
+            string[] platformPaths = Directory.GetDirectories(Path.Combine(Directory.GetCurrentDirectory(), "platforms\\"));
+            foreach(string platformPath in platformPaths)
+            {
+                string platformName = Path.GetFileName(platformPath);
+                gamesPerPlatform[platformName] = new Library.PlatformGameList(Path.Combine(platformPath, "games\\"), platformName);
+            }
+
+            windowData.GameMemory = gamesPerPlatform["NES"].GetGame("Super Mario Bros.", "NTSC");
 
             this.DataContext = windowData;
 

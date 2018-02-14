@@ -149,6 +149,14 @@ namespace thearcadearcade.GameHooks
         [JsonProperty()]
         string filename;
 
+        public bool IsValid
+        {
+            get
+            {
+                return name == "" || region == "" || platform == "" || filename == "";
+            }
+        }
+
         [JsonProperty()]
         Dictionary<string, MemoryArea> memoryAreas = new Dictionary<string, MemoryArea>();
         public Dictionary<string, MemoryArea> GetAllMemoryAreas()
@@ -166,13 +174,6 @@ namespace thearcadearcade.GameHooks
         void AddMemoryArea(string key, MemoryArea memoryArea)
         {
             memoryAreas.Add(key, memoryArea);
-        }
-
-        public Game(string _name, string _region, string _platform)
-        {
-            name = _name;
-            region = _region;
-            platform = _platform;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
