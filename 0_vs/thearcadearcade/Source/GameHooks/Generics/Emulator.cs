@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace thearcadearcade.GameHooks
 {
-    partial class Emulator
+    public partial class Emulator
     {
         #region Properties
         public enum State

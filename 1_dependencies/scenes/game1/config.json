@@ -1,49 +1,52 @@
 {
     "name": "Game 1",
     "description": "Example game adding 5 points per coin in the NTSC version of Super Mario Bros. 1, until the timer is <= 300 or 20 coins are collected",
-    "game":
-    {
-        "name": "Super Mario Bros.",
-        "region": "NTSC",
-        "score":
+    "games":
+    [
         {
-            "value": "coins",
-            "multiplier": 5
-        },
-        "endconditions":
-        [
+            "name": "Super Mario Bros.",
+            "region": "NTSC",
+            "platform": "NES",
+            "score":
             {
-                "operator": "AND",
-                "memoryState":
-                [
-                    {
-                        "value": "timer1stDigit",
-                        "comparision": "<=",
-                        "value": 3
-                    }
-                    {
-                        "value": "coins2ndDigit",
-                        "comparision": "<=",
-                        "value": 0
-                    }
-                    {
-                        "value": "coins3rdDigit",
-                        "comparision": "<=",
-                        "value": 0
-                    }
-                ]
+                "value": "coins",
+                "multiplier": 5
             },
-            {
-                "operator": "AND",
-                "memoryState":
-                [
-                    {
-                        "value": "coins",
-                        "comparision": ">=",
-                        "value": 20
-                    }
-                ]
-            }
-        ]
-    }
+            "endconditions":
+            [
+                {
+                    "operator": "AND",
+                    "memoryState":
+                    [
+                        {
+                            "value": "timer1stDigit",
+                            "comparision": "<=",
+                            "value": 3
+                        }
+                        {
+                            "value": "coins2ndDigit",
+                            "comparision": "<=",
+                            "value": 0
+                        }
+                        {
+                            "value": "coins3rdDigit",
+                            "comparision": "<=",
+                            "value": 0
+                        }
+                    ]
+                },
+                {
+                    "operator": "AND",
+                    "memoryState":
+                    [
+                        {
+                            "value": "coins",
+                            "comparision": ">=",
+                            "value": 20
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
 }

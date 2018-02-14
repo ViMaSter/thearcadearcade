@@ -5,12 +5,34 @@ using Newtonsoft.Json;
 
 namespace thearcadearcade.GameHooks
 {
-    class MemoryArea
+    public class MemoryArea
     {
         [JsonProperty("memoryRangeStart")]
         int MemoryRangeStart;
         [JsonProperty("memoryRangeLength")]
         int MemoryRangeLength;
+
+        public bool IsValid
+        {
+            get
+            {
+                return MemoryRangeStart == -1 || MemoryRangeLength == -1;
+            }
+        }
+
+        private MemoryArea()
+        {
+            MemoryRangeStart = -1;
+            MemoryRangeLength = -1;
+        }
+
+        public static MemoryArea InvalidObject
+        {
+            get
+            {
+                return new MemoryArea();
+            }
+        }
 
         public MemoryArea(int memoryRangeStart, int memoryRangeLength)
         {
@@ -129,9 +151,17 @@ namespace thearcadearcade.GameHooks
 
         [JsonProperty()]
         Dictionary<string, MemoryArea> memoryAreas = new Dictionary<string, MemoryArea>();
-        Dictionary<string, MemoryArea> GetAllMemoryAreas()
+        public Dictionary<string, MemoryArea> GetAllMemoryAreas()
         {
             return memoryAreas;
+        }
+        public MemoryArea GetMemoryArea(string key)
+        {
+            if (memoryAreas.ContainsKey(key))
+            {
+                return memoryAreas[key];
+            }
+            return MemoryArea.InvalidObject;
         }
         void AddMemoryArea(string key, MemoryArea memoryArea)
         {
