@@ -111,6 +111,8 @@ namespace thearcadearcade
 
             windowData.GameMemory = gamesPerPlatform["NES"].GetGame("Super Mario Bros.", "NTSC");
 
+            Library.Scene scene = Library.Scene.FromJSON(File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "scenes\\scene1\\config.json")), gamesPerPlatform);
+
             this.DataContext = windowData;
 
             Task task = Task.Run(async () => {
