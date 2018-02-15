@@ -1,47 +1,51 @@
 {
     "name": "Game 1",
     "description": "Example game adding 5 points per coin in the NTSC version of Super Mario Bros. 1, until the timer is <= 300 or 20 coins are collected",
-    "games":
+    "acts":
     [
         {
-            "name": "Super Mario Bros.",
-            "region": "NTSC",
-            "platform": "NES",
+			"game":
+			{
+	            "name": "Super Mario Bros.",
+	            "region": "NTSC",
+	            "platform": "NES"
+			},
+            "arguments":  "super_mario_bros.nsp",
             "score":
             {
-                "value": "coins",
+                "key": "coins",
                 "multiplier": 5
             },
-            "endconditions":
+            "endConditions":
             [
                 {
-                    "operator": "AND",
+                    "logicGate": "AND",
                     "memoryState":
                     [
                         {
                             "area": "timer1stDigit",
-                            "comparision": "<=",
+                            "comparisonOperator": "<=",
                             "value": 3
                         },
                         {
                             "area": "coins2ndDigit",
-                            "comparision": "<=",
+                            "comparisonOperator": "<=",
                             "value": 0
                         },
                         {
                             "area": "coins3rdDigit",
-                            "comparision": "<=",
+                            "comparisonOperator": "<=",
                             "value": 0
                         }
                     ]
                 },
                 {
-                    "operator": "AND",
+                    "logicGate": "AND",
                     "memoryState":
                     [
                         {
                             "area": "coins",
-                            "comparision": ">=",
+                            "comparisonOperator": ">=",
                             "value": 20
                         }
                     ]
@@ -49,23 +53,27 @@
             ]
         },
         {
-            "name": "Contra",
-            "region": "NTSC",
-            "platform": "NES",
+			"game":
+			{
+	            "name": "Contra",
+	            "region": "NTSC",
+	            "platform": "NES"
+			},
             "score":
             {
-                "value": "kills",
+                "key": "kills",
                 "multiplier": 5
             },
-            "endconditions":
+            "arguments":  "contra.nsp",
+            "endConditions":
             [
                 {
-                    "operator": "AND",
+                    "logicGate": "AND",
                     "memoryState":
                     [
                         {
-                            "key": "lives",
-                            "comparision": "<=",
+                            "area": "lives",
+                            "comparisonOperator": "<=",
                             "value": 1
                         }
                     ]
