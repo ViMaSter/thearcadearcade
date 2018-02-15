@@ -127,33 +127,33 @@ namespace thearcadearcade.GameHooks
         }
 
         [JsonProperty()]
-        string name;
+        string name = "";
         internal string Region
         {
             get { return region; }
         }
         [JsonProperty()]
-        string region;
+        string region = "";
 
         internal string Platform
         {
             get { return platform; }
         }
         [JsonProperty()]
-        string platform;
+        string platform = "";
 
         internal string Filename
         {
             get { return filename; }
         }
         [JsonProperty()]
-        string filename;
+        string filename = "";
 
         public bool IsValid
         {
             get
             {
-                return name == "" || region == "" || platform == "" || filename == "";
+                return name != "" && region != "" && platform != "" && filename != "";
             }
         }
 
@@ -185,11 +185,6 @@ namespace thearcadearcade.GameHooks
         public static Game FromJSON(string jsonString)
         {
             return JsonConvert.DeserializeObject<Game>(jsonString);
-        }
-
-        public string ToJSON()
-        {
-            return JsonConvert.SerializeObject(this);
         }
     }
 }
