@@ -69,6 +69,7 @@
     <Compile Include="Source\GameHooks\Game.cs" />
     <Compile Include="Source\Helper\WinAPI.cs" />
     <Compile Include="Source\Library\PlatformGameList.cs" />
+    <Compile Include="Source\Library\Scene.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
