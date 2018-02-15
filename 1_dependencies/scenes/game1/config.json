@@ -19,17 +19,17 @@
                     "memoryState":
                     [
                         {
-                            "value": "timer1stDigit",
+                            "area": "timer1stDigit",
                             "comparision": "<=",
                             "value": 3
-                        }
+                        },
                         {
-                            "value": "coins2ndDigit",
+                            "area": "coins2ndDigit",
                             "comparision": "<=",
                             "value": 0
-                        }
+                        },
                         {
-                            "value": "coins3rdDigit",
+                            "area": "coins3rdDigit",
                             "comparision": "<=",
                             "value": 0
                         }
@@ -40,9 +40,33 @@
                     "memoryState":
                     [
                         {
-                            "value": "coins",
+                            "area": "coins",
                             "comparision": ">=",
                             "value": 20
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Contra",
+            "region": "NTSC",
+            "platform": "NES",
+            "score":
+            {
+                "value": "kills",
+                "multiplier": 5
+            },
+            "endconditions":
+            [
+                {
+                    "operator": "AND",
+                    "memoryState":
+                    [
+                        {
+                            "key": "lives",
+                            "comparision": "<=",
+                            "value": 1
                         }
                     ]
                 }

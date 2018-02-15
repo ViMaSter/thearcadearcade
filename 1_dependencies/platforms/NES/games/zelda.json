@@ -1,0 +1,14 @@
+{
+    "name": "The Legend of Zelda",
+    "region": "NTSC",
+    "platform": "NES",
+    "filename": "zelda.nes",
+    "memoryAreas":
+    {
+        "coins":
+        {
+            "memoryRangeStart": 2018,
+            "memoryRangeLength": 1
+        }
+    }
+}
