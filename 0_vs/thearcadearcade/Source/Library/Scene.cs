@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace thearcadearcade.Library
 {
-    struct MemoryState
+    public struct MemoryState
     {
         [JsonProperty()]
         private string area;
@@ -38,7 +38,7 @@ namespace thearcadearcade.Library
         }
     }
 
-    struct EndCondition
+    public struct EndCondition
     {
         [JsonProperty()]
         private string logicGate;
@@ -60,7 +60,7 @@ namespace thearcadearcade.Library
             }
         }
     }
-    struct ScoreDefinition
+    public struct ScoreDefinition
     {
         [JsonProperty()]
         private string key;
@@ -82,7 +82,7 @@ namespace thearcadearcade.Library
             }
         }
     }
-    class Act
+    public class Act
     {
         [JsonProperty()]
         private GameHooks.Game game;
@@ -165,17 +165,13 @@ namespace thearcadearcade.Library
         Act[] acts = new Act[0];
 
         // dynamic data
-        public int currentAct = 0;
-        public int CurrentAct
+        private int currentAct = 0;
+        public Act CurrentAct
         {
             get
             {
-                return currentAct;
+                return acts[currentAct];
             }
-        }
-        Act GetCurrentAct()
-        {
-            return acts[currentAct];
         }
         /// <summary>
         /// Proceeds to the next act (if there is one)

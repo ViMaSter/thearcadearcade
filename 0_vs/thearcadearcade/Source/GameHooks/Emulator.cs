@@ -9,28 +9,7 @@ namespace thearcadearcade.GameHooks
 {
     public partial class Emulator
     {
-        #region Properties
-        public enum State
-        {
-            INITIALIZING,
-            READY,
-            RUNNING,
-            ERROR
-        };
-
-        State currentState = State.INITIALIZING;
-        public State CurrentState
-        {
-            get
-            {
-                return currentState;
-            }
-            set
-            {
-                currentState = value;
-            }
-        }
-
+        #region Static properties
         string platform;
         public string Platform
         {
@@ -42,7 +21,9 @@ namespace thearcadearcade.GameHooks
         {
             get { return pathToExecutable; }
         }
+        #endregion
 
+        #region Dynamic properties
         Game loadedGame;
         public Game LoadedGame
         {
@@ -54,6 +35,22 @@ namespace thearcadearcade.GameHooks
         UIntPtr[] ProcessAddressSpan = new UIntPtr[2];
 
         int BaseGameMemoryAddress;
+        public enum State
+        {
+            INITIALIZING,
+            READY,
+            RUNNING,
+            ERROR
+        };
+
+        State currentState;
+        public State CurrentState
+        {
+            get
+            {
+                return currentState;
+            }
+        }
         #endregion
 
         #region Internal methods
@@ -111,7 +108,7 @@ namespace thearcadearcade.GameHooks
                 if (win32Error != 0)
                 {
                     Console.WriteLine("Error querying process info: Error code {0}", win32Error);
-                    CurrentState = State.ERROR;
+                    currentState = State.ERROR;
                     return 2;
                 }
 
@@ -173,7 +170,7 @@ namespace thearcadearcade.GameHooks
                         continue;
                     }
 
-                    CurrentState = State.READY;
+                    currentState = State.READY;
                     await Task.Delay(17);
                     break;
                 }
@@ -224,29 +221,48 @@ namespace thearcadearcade.GameHooks
                 return 2;
             }
 
+            currentState = State.RUNNING;
+
+            return 0;
+        }
+
+        /// <summary>
+        /// Try to kill the emulator process and stop execution
+        /// </summary>
+        /// <returns>
+        /// Return code:
+        /// 0 = success
+        /// 1 = Process isn't running!
+        /// </returns>
+        public int StopGame()
+        {
+            if (CurrentProcess.HasExited)
+            {
+                return 1;
+            }
+
+            CurrentProcess.Kill();
             return 0;
         }
 
         public Emulator(string _platform, string _pathToExecutable)
         {
+            currentState = State.INITIALIZING;
             platform = _platform;
             pathToExecutable = _pathToExecutable;
+
             if (!StartProcess(""))
             {
-                CurrentState = State.ERROR;
+                currentState = State.ERROR;
                 Console.WriteLine(string.Format("Error starting emulator process {0}", platform));
                 return;
             }
-            CurrentState = State.INITIALIZING;
             TryToAttachToProcess();
         }
 
         ~Emulator()
-        { 
-            if (!CurrentProcess.HasExited)
-            {
-               CurrentProcess.Kill();
-            }
+        {
+            StopGame();
         }
     }
 }
