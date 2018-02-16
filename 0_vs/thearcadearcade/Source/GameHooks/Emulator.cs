@@ -39,6 +39,7 @@ namespace thearcadearcade.GameHooks
         {
             INITIALIZING,
             READY,
+            CONNECTING,
             RUNNING,
             ERROR
         };
@@ -107,8 +108,6 @@ namespace thearcadearcade.GameHooks
                 int win32Error = Marshal.GetLastWin32Error();
                 if (win32Error != 0)
                 {
-                    Console.WriteLine("Error querying process info: Error code {0}", win32Error);
-                    currentState = State.ERROR;
                     return 2;
                 }
 
@@ -137,6 +136,7 @@ namespace thearcadearcade.GameHooks
         bool StartProcess(string commandLineArguments)
         {
             Process process = new Process();
+            process.StartInfo.WorkingDirectory = Directory.GetCurrentDirectory();
             process.StartInfo.FileName = pathToExecutable;
             process.StartInfo.Arguments = commandLineArguments;
             // resolve emulator name from platform
@@ -157,7 +157,7 @@ namespace thearcadearcade.GameHooks
 
         void TryToAttachToProcess()
         {
-            var task = Task.Run(async () =>
+            Task task = Task.Run(async () =>
             {
                 do
                 {
@@ -208,7 +208,7 @@ namespace thearcadearcade.GameHooks
         /// 1 = Emulator platform and game platform do not match!
         /// 2 = Couldn't (re)start emulator with argument list
         /// </returns>
-        public int StartGame(Game game)
+        public int StartGame(Game game, string replacementArgument)
         {
             if (game.Platform != this.Platform)
             {
@@ -216,12 +216,30 @@ namespace thearcadearcade.GameHooks
             }
 
             loadedGame = game;
-            if (!StartProcess(Path.Combine(Directory.GetCurrentDirectory(), "platforms\\nes\\games\\", game.Filename)))
+            currentState = State.CONNECTING;
+            if (!StartProcess(replacementArgument.Length != 0 ? replacementArgument : Path.Combine(Directory.GetCurrentDirectory(), "platforms\\nes\\games\\", game.Filename)))
             {
                 return 2;
             }
 
-            currentState = State.RUNNING;
+            Task gameLoadedTask = Task.Run(async () =>
+            {
+                do
+                {
+                    byte[] buffer = new byte[1];
+                    int readMemorySuccess = ReadGameMemory(0, 1, out buffer);
+                    if (readMemorySuccess == 0)
+                    {
+                        if (buffer[0] != 0xFF)
+                        {
+                            currentState = State.RUNNING;
+                            break;
+                        }
+                    }
+                    await Task.Delay(17);
+                }
+                while (true);
+            });
 
             return 0;
         }

@@ -23,36 +23,29 @@ namespace thearcadearcade
 
     class SampleWindowData : INotifyPropertyChanged
     {
-        private GameHooks.Game gameMemory;
-        public GameHooks.Game GameMemory
+        private int score;
+        public int Score
         {
             get
             {
-                return gameMemory;
+                return score;
             }
             set
             {
-                gameMemory = value;
-                PropertyChangedEventHandler eh = new PropertyChangedEventHandler(ChildChanged);
-                gameMemory.PropertyChanged += eh;
-                OnPropertyChanged("gameMemory");
+                score = value;
             }
-        }
-        private void ChildChanged(object sender, PropertyChangedEventArgs e)
-        {
-            OnPropertyChanged("gameMemory");
         }
 
-        private GameHooks.Emulator emulator;
-        public GameHooks.Emulator Emulator
+        private int lives;
+        public int Lives
         {
             get
             {
-                return emulator;
+                return lives;
             }
             set
             {
-                emulator = value;
+                lives = value;
             }
         }
 
@@ -66,7 +59,6 @@ namespace thearcadearcade
             set
             {
                 coins = value;
-                OnPropertyChanged("Coins");
             }
         }
 
@@ -80,7 +72,19 @@ namespace thearcadearcade
             set
             {
                 time = value;
-                OnPropertyChanged("Time");
+            }
+        }
+
+        public string state;
+        public string State
+        {
+            get
+            {
+                return state;
+            }
+            set
+            {
+                state = value;
             }
         }
 
@@ -93,7 +97,7 @@ namespace thearcadearcade
 
     public partial class MainWindow : Window
     {
-        Player player;
+        Library.Player player;
         SampleWindowData windowData = new SampleWindowData();
         public MainWindow()
         {
@@ -110,25 +114,40 @@ namespace thearcadearcade
 
 
             Library.Scene scene = Library.Scene.FromJSON(File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "scenes\\scene1\\config.json")), gamesPerPlatform);
-            windowData.Emulator = new Nestopia();
-            windowData.GameMemory = scene.CurrentAct.Game;
 
-            player = new Player(windowData.Emulator, windowData.GameMemory);
+            GameHooks.Emulator emulator = new Nestopia();
+            player = new Library.Player(emulator, scene);
 
             this.DataContext = windowData;
 
             Task task = Task.Run(async () => {
                 do
                 {
-
-                    windowData.Coins = windowData.GameMemory.GetMemoryArea("coins").GetByte(windowData.Emulator);
-                    byte[] timeBytes =
+                    if (scene.CurrentActIndex == 0)
                     {
-                        windowData.GameMemory.GetMemoryArea("timer1stDigit").GetByte(windowData.Emulator),
-                        windowData.GameMemory.GetMemoryArea("timer2ndDigit").GetByte(windowData.Emulator),
-                        windowData.GameMemory.GetMemoryArea("timer3rdDigit").GetByte(windowData.Emulator)
-                    };
-                    windowData.Time = string.Format("{0}{1}{2}", timeBytes[0], timeBytes[1], timeBytes[2]);
+                        windowData.Coins = scene.CurrentAct.Game.GetMemoryArea("coins").GetByte(emulator);
+                        windowData.OnPropertyChanged("Coins");
+                        byte[] timeBytes =
+                        {
+                            scene.CurrentAct.Game.GetMemoryArea("timer1stDigit").GetByte(emulator),
+                            scene.CurrentAct.Game.GetMemoryArea("timer2ndDigit").GetByte(emulator),
+                            scene.CurrentAct.Game.GetMemoryArea("timer3rdDigit").GetByte(emulator),
+                        };
+                        windowData.Time = string.Format("{0}{1}{2}", timeBytes[0], timeBytes[1], timeBytes[2]);
+                        windowData.OnPropertyChanged("Time");
+                    }
+
+                    if (scene.CurrentActIndex == 1)
+                    {
+                        windowData.Score = scene.CurrentAct.Game.GetMemoryArea("score").GetByte(emulator);
+                        windowData.OnPropertyChanged("Score");
+                        windowData.Lives = scene.CurrentAct.Game.GetMemoryArea("live").GetByte(emulator);
+                        windowData.OnPropertyChanged("Lives");
+                    }
+
+                    windowData.State = emulator.CurrentState.ToString();
+                    windowData.OnPropertyChanged("State");
+
                     await Task.Delay(17);
                 } while (true);
             });
