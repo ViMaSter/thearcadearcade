@@ -93,12 +93,11 @@ namespace thearcadearcade
 
     public partial class MainWindow : Window
     {
+        Player player;
         SampleWindowData windowData = new SampleWindowData();
         public MainWindow()
         {
             InitializeComponent();
-
-            windowData.Emulator = new Nestopia();
 
             Dictionary<string, Library.PlatformGameList> gamesPerPlatform = new Dictionary<string, Library.PlatformGameList>();
 
@@ -109,41 +108,18 @@ namespace thearcadearcade
                 gamesPerPlatform[platformName] = new Library.PlatformGameList(Path.Combine(platformPath, "games\\"), platformName);
             }
 
-            windowData.GameMemory = gamesPerPlatform["NES"].GetGame("Super Mario Bros.", "NTSC");
 
             Library.Scene scene = Library.Scene.FromJSON(File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "scenes\\scene1\\config.json")), gamesPerPlatform);
+            windowData.Emulator = new Nestopia();
+            windowData.GameMemory = scene.CurrentAct.Game;
+
+            player = new Player(windowData.Emulator, windowData.GameMemory);
 
             this.DataContext = windowData;
 
             Task task = Task.Run(async () => {
                 do
                 {
-                    windowData.Emulator.CurrentState = windowData.Emulator.CurrentState;
-
-                    if (windowData.Emulator.CurrentState == GameHooks.Emulator.State.READY)
-                    {
-                        byte[] isReadyFlag = new byte[1];
-                        windowData.Emulator.ReadGameMemory(0, 1, out isReadyFlag);
-
-                        if (isReadyFlag[0] == 0xFF)
-                        {
-                            int gameStartStatus = windowData.Emulator.StartGame(windowData.GameMemory);
-                            if (gameStartStatus == 0)
-                            {
-                                windowData.Emulator.CurrentState = GameHooks.Emulator.State.RUNNING;
-                            }
-                            else
-                            {
-                                Console.WriteLine("Couldn't launch game {0}: Error code {1}", windowData.GameMemory.Name, gameStartStatus);
-                                windowData.Emulator.CurrentState = GameHooks.Emulator.State.ERROR;
-                            }
-                        }
-                    }
-
-                    if (windowData.Emulator.CurrentState != GameHooks.Emulator.State.RUNNING)
-                    {
-                        continue;
-                    }
 
                     windowData.Coins = windowData.GameMemory.GetMemoryArea("coins").GetByte(windowData.Emulator);
                     byte[] timeBytes =
