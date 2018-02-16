@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
 using Newtonsoft.Json;
@@ -38,7 +39,7 @@ namespace thearcadearcade.Library
         }
     }
 
-    public struct EndCondition
+    public struct Condition
     {
         [JsonProperty()]
         private string logicGate;
@@ -51,13 +52,66 @@ namespace thearcadearcade.Library
         }
 
         [JsonProperty()]
-        private MemoryState[] memoryState;
-        public MemoryState[] MemoryState
+        private MemoryState[] memoryStates;
+        public MemoryState[] MemoryStates
         {
             get
             {
-                return memoryState;
+                return memoryStates;
             }
+        }
+
+        public bool IsFulfilled(GameHooks.Game game, GameHooks.Emulator emulator)
+        {
+            Debug.Assert(memoryStates.Length > 0, "No memory states available!", "IsFulfilled was called, but no memory states are defined! This is undefined behavior!");
+            byte value = 0x00;
+            foreach (MemoryState memoryState in memoryStates)
+            {
+                value = game.GetMemoryArea(memoryState.Area).GetByte(emulator);
+                bool? statePassed = null;
+                switch (memoryState.ComparisonOperator)
+                {
+                    case "<":
+                        statePassed = value < Convert.ToInt32(memoryState.Value);
+                        break;
+                    case "<=":
+                        statePassed = value <= Convert.ToInt32(memoryState.Value);
+                        break;
+                    case ">":
+                        statePassed = value > Convert.ToInt32(memoryState.Value);
+                        break;
+                    case ">=":
+                        statePassed = value >= Convert.ToInt32(memoryState.Value);
+                        break;
+                    case "==":
+                        statePassed = value == Convert.ToInt32(memoryState.Value);
+                        break;
+                }
+
+                Debug.Assert(statePassed != null,
+                    "Invalid comparision operator used; '{0}' is not supported (Comparing field {1} with value {2})",
+                    memoryState.ComparisonOperator,
+                    memoryState.Area,
+                    memoryState.Value
+                );
+
+                if (!statePassed.HasValue)
+                {
+                    break;
+                }
+
+                if (logicGate == "OR" && statePassed.Value)
+                {
+                    return true;
+                }
+
+                if (logicGate == "AND" && !(statePassed.Value))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
     public struct ScoreDefinition
@@ -128,12 +182,22 @@ namespace thearcadearcade.Library
         }
 
         [JsonProperty()]
-        private EndCondition[] endConditions;
-        public EndCondition[] EndConditions
+        private Condition[] loseConditions;
+        public Condition[] LoseConditions
         {
             get
             {
-                return endConditions;
+                return loseConditions;
+            }
+        }
+
+        [JsonProperty()]
+        private Condition[] winConditions;
+        public Condition[] WinConditions
+        {
+            get
+            {
+                return winConditions;
             }
         }
     }
@@ -165,12 +229,26 @@ namespace thearcadearcade.Library
         Act[] acts = new Act[0];
 
         // dynamic data
-        private int currentAct = 0;
+        private int currentActIndex = 0;
+        public int CurrentActIndex
+        {
+            get
+            {
+                return currentActIndex;
+            }
+        }
+        public int ActAmount
+        {
+            get
+            {
+                return acts.Length;
+            }
+        }
         public Act CurrentAct
         {
             get
             {
-                return acts[currentAct];
+                return acts[currentActIndex];
             }
         }
         /// <summary>
@@ -181,25 +259,12 @@ namespace thearcadearcade.Library
         /// </returns>
         public int FinishAct()
         {
-            currentAct++;
-            if (currentAct >= scoreByAct.Count)
+            currentActIndex++;
+            if (currentActIndex >= acts.Length)
             {
                 return -1;
             }
-            return currentAct;
-        }
-
-        public List<double> scoreByAct = new List<double>();
-        public double CurrentScore
-        {
-            get
-            {
-                return scoreByAct.Sum();
-            }
-        }
-        public void SetScoreForAct(double score)
-        {
-            scoreByAct[currentAct] = score;
+            return currentActIndex;
         }
 
         public static Scene FromJSON(string jsonString, Dictionary<string, PlatformGameList> gameList)
@@ -211,7 +276,7 @@ namespace thearcadearcade.Library
                 Debug.Assert(gameList[act.Game.Platform].HasGame(act.Game.Name, act.Game.Region), "Couldn't find game!", "Game {0} ({1}) doesn't exist in the game library!", act.Game.Name, act.Game.Region);
                 act.FillGameData(gameList[act.Game.Platform].GetGame(act.Game.Name, act.Game.Region));
             }
-            scene.currentAct = 0;
+            scene.currentActIndex = 0;
             return scene;
         }
 

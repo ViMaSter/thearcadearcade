@@ -16,33 +16,34 @@
                 "key": "coins",
                 "multiplier": 5
             },
-            "endConditions":
+            "loseConditions": 
             [
                 {
                     "logicGate": "AND",
-                    "memoryState":
-                    [
+                    "memoryStates": [
                         {
                             "area": "timer1stDigit",
                             "comparisonOperator": "<=",
                             "value": 3
                         },
                         {
-                            "area": "coins2ndDigit",
+                            "area": "timer2ndDigit",
                             "comparisonOperator": "<=",
-                            "value": 0
+                            "value": 8
                         },
                         {
-                            "area": "coins3rdDigit",
+                            "area": "timer3rdDigit",
                             "comparisonOperator": "<=",
                             "value": 0
                         }
                     ]
-                },
+                }
+            ],
+            "winConditions":
+            [
                 {
                     "logicGate": "AND",
-                    "memoryState":
-                    [
+                    "memoryStates": [
                         {
                             "area": "coins",
                             "comparisonOperator": ">=",
@@ -65,11 +66,25 @@
                 "multiplier": 5
             },
             "arguments":  "contra.nsp",
-            "endConditions":
+            "winConditions":
             [
                 {
                     "logicGate": "AND",
-                    "memoryState":
+                    "memoryStates":
+                    [
+                        {
+                            "area": "score",
+                            "comparisonOperator": "<=",
+                            "value": 10
+                        }
+                    ]
+                }
+            ],
+            "loseConditions":
+            [
+                {
+                    "logicGate": "AND",
+                    "memoryStates":
                     [
                         {
                             "area": "lives",
