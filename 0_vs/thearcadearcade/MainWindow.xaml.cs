@@ -113,7 +113,7 @@ namespace thearcadearcade
             }
 
 
-            Library.Scene scene = Library.Scene.FromJSON(File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "scenes\\scene1\\config.json")), gamesPerPlatform);
+            Library.Scene scene = Library.Scene.FromJSON(Path.Combine(Directory.GetCurrentDirectory(), "scenes\\scene1\\config.json"), gamesPerPlatform);
 
             GameHooks.Emulator emulator = new Nestopia();
             player = new Library.Player(emulator, scene);

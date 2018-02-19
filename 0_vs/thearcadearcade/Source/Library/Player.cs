@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace thearcadearcade.Library
@@ -54,7 +55,7 @@ namespace thearcadearcade.Library
         {
             if (nextGame != null)
             {
-                int gameStartStatus = emulator.StartGame(nextGame, nextArgument);
+                int gameStartStatus = emulator.StartGame(nextGame, Path.Combine(activeScene.RootPath, nextArgument));
                 if (gameStartStatus == 0)
                 {
                     nextGame = null;
@@ -72,7 +73,7 @@ namespace thearcadearcade.Library
         private void RestartGame()
         {
             currentState = State.READY;
-            int gameStartStatus = emulator.StartGame(activeScene.CurrentAct.Game, activeScene.CurrentAct.Arguments);
+            int gameStartStatus = emulator.StartGame(activeScene.CurrentAct.Game, Path.Combine(activeScene.RootPath, activeScene.CurrentAct.Arguments));
             if (gameStartStatus == 0)
             {
             }

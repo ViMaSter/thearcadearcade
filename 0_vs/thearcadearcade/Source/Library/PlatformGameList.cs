@@ -23,7 +23,7 @@ namespace thearcadearcade.Library
             string[] gameConfigs = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), pathToGamesDirectory), "*.json");
             foreach (string gameConfigFilePath in gameConfigs)
             {
-                GameHooks.Game game = GameHooks.Game.FromJSON(File.ReadAllText(gameConfigFilePath));
+                GameHooks.Game game = GameHooks.Game.FromJSON(gameConfigFilePath);
                 if (game.Platform == platform)
                 {
                     games.Add(game);
