@@ -14,3 +14,6 @@ Collecting highscores in old games? Why not collect scores for collecting scores
 3. Reference to the contents of `config.json` for compatiable emulators
 4. Create an `executable`-folder inside `/platforms/[PLATFORM]/`
 5. Extract any emulator into the `executable`-folder. (The emulator's executable should now live at `/platforms/[PLATFORM]/executable/{executable.name}.exe`
+
+## Contributing
+Pull requests are accepted; simply clone this repository and set the working directory of the project to `../../../../1_dependencies` to start hacking away. Visual Studio will complain about relative paths but accept them nevertheless.
