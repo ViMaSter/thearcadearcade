@@ -3,7 +3,7 @@
     {
         "name": "nestopia",
         "productVersion": {
-        "1.40": {
+        "1.37":
             "baseAddress": {
                 "type": "OffsetFromStartOfRegion",
                 "offset": 208,
