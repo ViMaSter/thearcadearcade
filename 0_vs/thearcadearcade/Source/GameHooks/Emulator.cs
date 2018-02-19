@@ -267,7 +267,7 @@ namespace thearcadearcade.GameHooks
         {
             currentState = State.INITIALIZING;
             platform = _platform;
-            pathToExecutable = _pathToExecutable;
+            pathToExecutable = Path.Combine(Directory.GetCurrentDirectory(), "platforms", _platform, "executable", _pathToExecutable);
 
             if (!StartProcess(""))
             {

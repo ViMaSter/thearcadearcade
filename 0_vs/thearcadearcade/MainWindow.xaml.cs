@@ -16,7 +16,7 @@ namespace thearcadearcade
     class Nestopia : GameHooks.Emulator
     {
         public Nestopia()
-            : base("NES", "C:/Users/vmahnke/Desktop/em/0_git/1_dependencies/platforms/nes/executable/nestopia.exe")
+            : base("NES", "nestopia.exe")
         {
         }
     }
