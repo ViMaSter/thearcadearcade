@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using Newtonsoft.Json;
 
 namespace thearcadearcade.GameHooks
@@ -182,9 +183,10 @@ namespace thearcadearcade.GameHooks
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
         }
 
-        public static Game FromJSON(string jsonString)
+        public static Game FromJSON(string pathToJSONFile)
         {
-            return JsonConvert.DeserializeObject<Game>(jsonString);
+            string fileContents = File.ReadAllText(pathToJSONFile);
+            return JsonConvert.DeserializeObject<Game>(fileContents);
         }
     }
 }

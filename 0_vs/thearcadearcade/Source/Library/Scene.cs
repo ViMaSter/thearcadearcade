@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Diagnostics;
+using System.IO;
 using Newtonsoft.Json;
 
 namespace thearcadearcade.Library
@@ -251,6 +251,25 @@ namespace thearcadearcade.Library
                 return acts[currentActIndex];
             }
         }
+
+        private string rootPath = null;
+        public string RootPath
+        {
+            get
+            {
+                return rootPath;
+            }
+            set
+            {
+                Debug.Assert(rootPath == null, "Root path already set!", "Trying to set the root path about the scene allegedly located at {0}, but we already have this path set!", rootPath);
+                if (rootPath == null)
+                {
+                    rootPath = value;
+                }
+            }
+        }
+
+
         /// <summary>
         /// Proceeds to the next act (if there is one)
         /// </summary>
@@ -267,9 +286,11 @@ namespace thearcadearcade.Library
             return currentActIndex;
         }
 
-        public static Scene FromJSON(string jsonString, Dictionary<string, PlatformGameList> gameList)
+        public static Scene FromJSON(string pathToJSONFile, Dictionary<string, PlatformGameList> gameList)
         {
-            Scene scene = JsonConvert.DeserializeObject<Scene>(jsonString);
+            string fileContents = File.ReadAllText(pathToJSONFile);
+            Scene scene = JsonConvert.DeserializeObject<Scene>(fileContents);
+            scene.RootPath = Path.GetDirectoryName(pathToJSONFile);
             foreach (Act act in scene.acts)
             {
                 Debug.Assert(gameList.ContainsKey(act.Game.Platform), "Platform not supported!", "Platform {0} used by game {1} ({2}) is not supported!", act.Game.Platform, act.Game.Name, act.Game.Region);
