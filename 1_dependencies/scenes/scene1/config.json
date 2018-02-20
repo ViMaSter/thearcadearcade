@@ -10,7 +10,7 @@
 	            "region": "NTSC",
 	            "platform": "NES"
 			},
-            "arguments":  "super_mario_bros.nsp",
+            "arguments":  "super_mario_bros.nst",
             "score":
             {
                 "key": "coins",
@@ -29,7 +29,7 @@
                         {
                             "area": "timer2ndDigit",
                             "comparisonOperator": "<=",
-                            "value": 8
+                            "value": 5
                         },
                         {
                             "area": "timer3rdDigit",
@@ -65,7 +65,7 @@
                 "key": "kills",
                 "multiplier": 5
             },
-            "arguments":  "contra.nsp",
+            "arguments":  "contra.nst",
             "winConditions":
             [
                 {
@@ -73,8 +73,8 @@
                     "memoryStates":
                     [
                         {
-                            "area": "score",
-                            "comparisonOperator": "<=",
+                            "area": "kills",
+                            "comparisonOperator": ">=",
                             "value": 10
                         }
                     ]

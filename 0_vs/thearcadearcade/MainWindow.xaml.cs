@@ -139,10 +139,17 @@ namespace thearcadearcade
 
                     if (scene.CurrentActIndex == 1)
                     {
-                        windowData.Score = scene.CurrentAct.Game.GetMemoryArea("score").GetByte(emulator);
-                        windowData.OnPropertyChanged("Score");
-                        windowData.Lives = scene.CurrentAct.Game.GetMemoryArea("live").GetByte(emulator);
-                        windowData.OnPropertyChanged("Lives");
+                        try
+                        {
+                            windowData.Score = scene.CurrentAct.Game.GetMemoryArea("kills").GetByte(emulator);
+                            windowData.OnPropertyChanged("Score");
+                            windowData.Lives = scene.CurrentAct.Game.GetMemoryArea("lives").GetByte(emulator);
+                            windowData.OnPropertyChanged("Lives");
+                        }
+                        catch (Exception e)
+                        {
+
+                        }
                     }
 
                     windowData.State = emulator.CurrentState.ToString();

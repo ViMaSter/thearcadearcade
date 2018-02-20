@@ -23,6 +23,9 @@ namespace thearcadearcade.Helper
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern int VirtualQueryEx(IntPtr hProcess, IntPtr lpAddress, out MEMORY_BASIC_INFORMATION lpBuffer, uint dwLength);
 
+        [DllImport("user32.dll")]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
+
         // REQUIRED STRUCTS
         public struct MEMORY_BASIC_INFORMATION
         {
