@@ -3,7 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Threading;
+
+using thearcadearcade.Helper;
 
 namespace thearcadearcade.Library
 {
@@ -45,41 +50,24 @@ namespace thearcadearcade.Library
         #region INITIALIZING
         private void OnInitializing()
         {
-            nextGame = activeScene.CurrentAct.Game;
-            nextArgument = activeScene.CurrentAct.Arguments;
             currentState = State.READY;
         }
         #endregion
         #region READY
-        private void LaunchNextGame()
+        private void LaunchGame()
         {
-            if (nextGame != null)
-            {
-                int gameStartStatus = emulator.StartGame(nextGame, Path.Combine(activeScene.RootPath, nextArgument));
-                if (gameStartStatus == 0)
-                {
-                    nextGame = null;
-                    nextArgument = null;
-                }
-                else
-                {
-                    Console.WriteLine("Couldn't launch game {0}: Error code {1}", nextGame.Name, gameStartStatus);
-                    currentState = State.ERROR;
-                    nextGame = null;
-                }
-            }
-        }
-
-        private void RestartGame()
-        {
+            nextGame = activeScene.CurrentAct.Game;
+            nextArgument = activeScene.CurrentAct.Arguments;
             currentState = State.READY;
-            int gameStartStatus = emulator.StartGame(activeScene.CurrentAct.Game, Path.Combine(activeScene.RootPath, activeScene.CurrentAct.Arguments));
+            int gameStartStatus = emulator.StartGame(nextGame, Path.Combine(activeScene.RootPath, nextArgument));
             if (gameStartStatus == 0)
             {
+                nextGame = null;
+                nextArgument = null;
             }
             else
             {
-                Console.WriteLine("Couldn't restart game {0}: Error code {1}", nextGame.Name, gameStartStatus);
+                Console.WriteLine("Couldn't launch game {0}: Error code {1}", nextGame.Name, gameStartStatus);
                 currentState = State.ERROR;
                 nextGame = null;
             }
@@ -89,7 +77,7 @@ namespace thearcadearcade.Library
         {
             if (emulator.CurrentState == GameHooks.Emulator.State.READY)
             {
-                LaunchNextGame();
+                LaunchGame();
             }
             if (emulator.CurrentState == GameHooks.Emulator.State.RUNNING)
             {
@@ -137,7 +125,8 @@ namespace thearcadearcade.Library
             UpdateActScore();
             if (HasLost())
             {
-                RestartGame();
+                currentState = State.READY;
+                LaunchGame();
                 return;
                 // @TODO: reduce life
             }
@@ -148,7 +137,9 @@ namespace thearcadearcade.Library
                 if (activeScene.FinishAct() == -1)
                 {
                     // ... either there are no acts left
-                    Debug.Assert(false, "Game completed!", "Current score: {0}", scorePerAct.Sum());
+                    WinAPI.SetForegroundWindow(Process.GetCurrentProcess().MainWindowHandle);
+                    MessageBox.Show(string.Format("Current score: {0}", scorePerAct.Sum()), "Game completed!", MessageBoxButton.OK);
+                    Environment.Exit(1);
                     // @TODO: Submit high-score
                 }
                 else
@@ -156,6 +147,7 @@ namespace thearcadearcade.Library
                     // ... or we proceed to next game
                     nextGame = activeScene.CurrentAct.Game;
                     currentState = State.READY;
+                    LaunchGame();
                 }
 
                 return;

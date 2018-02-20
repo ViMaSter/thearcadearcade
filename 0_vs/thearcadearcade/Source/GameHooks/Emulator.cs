@@ -217,15 +217,30 @@ namespace thearcadearcade.GameHooks
 
             loadedGame = game;
             currentState = State.CONNECTING;
-            if (!StartProcess(replacementArgument.Length != 0 ? replacementArgument : Path.Combine(Directory.GetCurrentDirectory(), "platforms\\nes\\games\\", game.Filename)))
+
+            // switch (commandLineType)
+            //{
+            //case Separate:
+            if (!StartProcess(Path.Combine(Directory.GetCurrentDirectory(), "platforms\\nes\\games\\", game.Filename)))
             {
                 return 2;
             }
+            if (!StartProcess(replacementArgument))
+            {
+                return 3;
+            }
+            //case Combined:
+            //if (!StartProcess(Path.Combine(Directory.GetCurrentDirectory(), "platforms\\nes\\games\\", game.Filename) + " " + replacementArgument))
+            //{
+            //    return 4;
+            //}
+            //}
 
             Task gameLoadedTask = Task.Run(async () =>
             {
                 do
                 {
+                    await Task.Delay(100);
                     byte[] buffer = new byte[1];
                     int readMemorySuccess = ReadGameMemory(0, 1, out buffer);
                     if (readMemorySuccess == 0)

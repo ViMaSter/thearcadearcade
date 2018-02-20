@@ -278,12 +278,15 @@ namespace thearcadearcade.Library
         /// </returns>
         public int FinishAct()
         {
-            currentActIndex++;
-            if (currentActIndex >= acts.Length)
+            if (currentActIndex == (acts.Length-1))
             {
                 return -1;
             }
-            return currentActIndex;
+            else
+            {
+                currentActIndex++;
+                return currentActIndex;
+            }
         }
 
         public static Scene FromJSON(string pathToJSONFile, Dictionary<string, PlatformGameList> gameList)
