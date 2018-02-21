@@ -12,22 +12,66 @@ def getMSBuildPath():
             path = QueryValueEx(registryObject, "MSBuildToolsPath")
             if path != "":
                 print("Found path for MSBuild {}: {}\r\nStopping further queries".format(version, path[0]))
-                return path[0] + "MSBuild.exe"
+                return path[0]
             else:
-                print("Couldn't read registry key '{}': Return value was empty!".format(registryPath,))
+                print("Couldn't read registry key '{}': Return value was empty".format(registryPath))
+                return False
         except EnvironmentError as e:
             print("Couldn't read registry key '{}': {}".format(registryPath, e))
+            return False
+
+    return True
 
 from subprocess import call
 
 import os
 
+def which(program):
+    import os
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+
+    return None
+
+def restoreNugetPackages():
+    nuget = "nuget.exe" 
+    resolvedNuget = which(nuget); 
+
+    if resolvedNuget == None:
+        print ('nuget.exe not found. You must manually download nuget.exe and place it inside a PATH-listed directory.\r\n'+
+                'Alternatively restore the NuGet-packages of this solution inside Visual Studio once.'.format(nuget))
+        return False
+
+    project = r"0_vs\thearcadearcade.sln"
+    print("Resolving NuGet-packages for solution '{}'".format(project))
+
+    # making command line to run
+    default = [nuget]
+    default.append("restore") 
+    default.append(project)
+
+    print("Calling '{}'".format(' '.join(default)))
+    call(default)
+    
+    return True
+
 def build():
-    msbuild = getMSBuildPath()
+    msbuild = getMSBuildPath() + "MSBuild.exe"
     project_output_dir = r'2_build'
 
     if not os.path.exists(msbuild):
-        raise Exception('MSBuild not found: {} Make sure at least MSBuild 3.5 is installed!'.format(msbuild))
+        print ("MSBuild not found at '{}'. Make sure at least MSBuild 4.0 is installed.".format(msbuild))
+        return False
 
     project = r"0_vs\thearcadearcade.sln"
     win32_target = '/t:thearcadearcade:rebuild'
@@ -43,9 +87,11 @@ def build():
 
     print("Calling '{}'".format(' '.join(default)))
     call(default)
+    return True
 
 import glob
 import shutil
+
 def killBlacklistFiles():
     postBuildBlacklist = [
         "2_build/EMPTY",
@@ -75,6 +121,8 @@ def killBlacklistFiles():
             else:
                 shutil.rmtree(filename)
 
+    return True
+
 import re
 import sys
 
@@ -99,6 +147,20 @@ def set_version(infocs, target_version):
         f.write(phase_2)
         f.truncate()
 
-set_version(r"0_vs\thearcadearcade\Properties\AssemblyInfo.cs", "0.2.0")
-build()
-killBlacklistFiles()
+    return True;
+
+if (not set_version(r"0_vs\thearcadearcade\Properties\AssemblyInfo.cs", "0.2.0")):
+    print ("Unable to set version inside AssemblyInfo.cs")
+    sys.exit()
+
+if (not restoreNugetPackages()):
+    print ("Unable to restore nuget packages")
+    sys.exit()
+    
+if (not build()):
+    sys.exit()
+    print ("Building solution failed")
+
+if (not killBlacklistFiles()):
+    sys.exit()
+    print ("Removing blacklisted files failed. Do not submit this binary, as it might contain copyrighted-material or be broken otherwise.")
