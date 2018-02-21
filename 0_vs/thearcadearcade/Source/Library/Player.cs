@@ -137,6 +137,7 @@ namespace thearcadearcade.Library
                 if (activeScene.FinishAct() == -1)
                 {
                     // ... either there are no acts left
+                    emulator = null;
                     WinAPI.SetForegroundWindow(Process.GetCurrentProcess().MainWindowHandle);
                     MessageBox.Show(string.Format("Current score: {0}", scorePerAct.Sum()), "Game completed!", MessageBoxButton.OK);
                     Environment.Exit(1);
