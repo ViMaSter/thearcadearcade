@@ -6,6 +6,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows.Interop;
 
 using System.Windows;
 using System.Windows.Data;
@@ -101,6 +102,8 @@ namespace thearcadearcade
         SampleWindowData windowData = new SampleWindowData();
         public MainWindow()
         {
+            this.Hide();
+
             InitializeComponent();
 
             Dictionary<string, Library.PlatformGameList> gamesPerPlatform = new Dictionary<string, Library.PlatformGameList>();
@@ -158,6 +161,9 @@ namespace thearcadearcade
                     await Task.Delay(17);
                 } while (true);
             });
-        }
+
+            var helper = new WindowInteropHelper(this);
+            helper.EnsureHandle();
+    }
     }
 }
