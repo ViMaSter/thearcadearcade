@@ -11,6 +11,7 @@ using System.Windows.Interop;
 using System.Windows;
 using System.Windows.Data;
 
+using CefSharp;
 
 namespace thearcadearcade
 {
@@ -98,13 +99,16 @@ namespace thearcadearcade
 
     public partial class MainWindow : Window
     {
+        CefSharp.Wpf.ChromiumWebBrowser browser;
         Library.Player player;
         SampleWindowData windowData = new SampleWindowData();
+
         public MainWindow()
         {
-            this.Hide();
-
             InitializeComponent();
+
+            browser = this.FindName("UI") as CefSharp.Wpf.ChromiumWebBrowser;
+            browser.MenuHandler = new UI.CEF.DebugToolsMenuHandler();
 
             Dictionary<string, Library.PlatformGameList> gamesPerPlatform = new Dictionary<string, Library.PlatformGameList>();
 
@@ -162,7 +166,8 @@ namespace thearcadearcade
                 } while (true);
             });
 
-            var helper = new WindowInteropHelper(this);
+
+        var helper = new WindowInteropHelper(this);
             helper.EnsureHandle();
     }
     }

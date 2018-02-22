@@ -102,6 +102,7 @@ def killBlacklistFiles():
         "2_build/dump.txt",
         "2_build/platforms/**/*.nes",
         "2_build/platforms/NES/executable/"
+        "2_build/GPUCache/"
     ]
 
     for blacklistItem in postBuildBlacklist:
