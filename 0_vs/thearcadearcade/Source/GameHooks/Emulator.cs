@@ -247,6 +247,7 @@ namespace thearcadearcade.GameHooks
                     {
                         if (buffer[0] != 0xFF)
                         {
+                            Helper.WinAPI.WindowsReStyle(CurrentProcess.MainWindowHandle);
                             currentState = State.RUNNING;
                             break;
                         }
