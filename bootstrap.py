@@ -143,31 +143,37 @@ def set_version(infocs, target_version):
 
 def clearBuildDirectory():
     folder = '0_vs/thearcadearcade/bin/Release'
-    print ("Attempting to clear build intermediate folder '{}'".format(folder))
-    for the_file in os.listdir(folder):
-        file_path = os.path.join(folder, the_file)
-        try:
-            if os.path.isfile(file_path):
-                os.unlink(file_path)
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
-        except Exception as e:
-            print(e)
-            return False
-            
+    if os.path.isdir(folder):
+        print ("Attempting to clear build intermediate folder '{}'".format(folder))
+        for the_file in os.listdir(folder):
+            file_path = os.path.join(folder, the_file)
+            try:
+                if os.path.isfile(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+            except Exception as e:
+                print(e)
+                return False
+    else:
+        print ("Build intermediate folder '{}' doesn't exist; skipping it".format(folder))
+           
     folder = '2_build'
-    print ("Attempting to clear build target folder '{}'".format(folder))
-    for the_file in os.listdir(folder):
-        file_path = os.path.join(folder, the_file)
-        try:
-            if os.path.isfile(file_path):
-                os.unlink(file_path)
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
-        except Exception as e:
-            print(e)
-            return False
-    return True;
+    if os.path.isdir(folder):
+        print ("Attempting to clear build intermediate folder '{}'".format(folder))
+        for the_file in os.listdir(folder):
+            file_path = os.path.join(folder, the_file)
+            try:
+                if os.path.isfile(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+            except Exception as e:
+                print(e)
+                return False
+    else:
+        print ("Build intermediate folder '{}' doesn't exist; skipping it".format(folder))
+    return True
 
 if (not set_version(r"0_vs\thearcadearcade\Properties\AssemblyInfo.cs", "0.2.0")):
     print ("Unable to set version inside AssemblyInfo.cs")
