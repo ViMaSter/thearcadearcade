@@ -44,8 +44,8 @@ def which(program):
     return None
 
 def restoreNugetPackages():
-    nuget = "nuget.exe" 
-    resolvedNuget = which(nuget); 
+    nuget = "nuget.exe"
+    resolvedNuget = which(nuget);
 
     if resolvedNuget == None:
         print ('nuget.exe not found. You must manually download nuget.exe and place it inside a PATH-listed directory.\r\n'+
@@ -57,12 +57,12 @@ def restoreNugetPackages():
 
     # making command line to run
     default = [nuget]
-    default.append("restore") 
+    default.append("restore")
     default.append(project)
 
     print("Calling '{}'".format(' '.join(default)))
     call(default)
-    
+
     return True
 
 def build():
@@ -101,15 +101,7 @@ def killBlacklistFiles():
         "2_build/*.xml",
         "2_build/dump.txt",
         "2_build/platforms/**/*.nes",
-        "2_build/platforms/NES/executable/nestopia.cfg",
-        "2_build/platforms/NES/executable/nestopia.log",
-        "2_build/platforms/NES/executable/ips/",
-        "2_build/platforms/NES/executable/samples/",
-        "2_build/platforms/NES/executable/saves/",
-        "2_build/platforms/NES/executable/save/",
-        "2_build/platforms/NES/executable/screenshots/",
-        "2_build/platforms/NES/executable/scripts/",
-        "2_build/platforms/NES/executable/states/"
+        "2_build/platforms/NES/executable/"
     ]
 
     for blacklistItem in postBuildBlacklist:
@@ -154,9 +146,8 @@ if (not set_version(r"0_vs\thearcadearcade\Properties\AssemblyInfo.cs", "0.2.0")
     sys.exit()
 
 if (not restoreNugetPackages()):
-    print ("Unable to restore nuget packages")
-    sys.exit()
-    
+    print ("Unable to restore nuget packages, but continuing anyway as they might already be in place; if there are errors regarding missing packages, fix this!")
+
 if (not build()):
     sys.exit()
     print ("Building solution failed")
