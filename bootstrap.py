@@ -74,7 +74,7 @@ def build():
         return False
 
     project = r"0_vs\thearcadearcade.sln"
-    win32_target = '/t:thearcadearcade:rebuild'
+    win32_target = '/t:thearcadearcade:Clean,Build'
     win32 = '/p:Platform=Any CPU'
     print("Building '{}' for Any CPU".format(project))
 
@@ -141,6 +141,34 @@ def set_version(infocs, target_version):
 
     return True;
 
+def clearBuildDirectory():
+    folder = '0_vs/thearcadearcade/bin/Release'
+    print ("Attempting to clear build intermediate folder '{}'".format(folder))
+    for the_file in os.listdir(folder):
+        file_path = os.path.join(folder, the_file)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print(e)
+            return False
+            
+    folder = '2_build'
+    print ("Attempting to clear build target folder '{}'".format(folder))
+    for the_file in os.listdir(folder):
+        file_path = os.path.join(folder, the_file)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print(e)
+            return False
+    return True;
+
 if (not set_version(r"0_vs\thearcadearcade\Properties\AssemblyInfo.cs", "0.2.0")):
     print ("Unable to set version inside AssemblyInfo.cs")
     sys.exit()
@@ -148,10 +176,15 @@ if (not set_version(r"0_vs\thearcadearcade\Properties\AssemblyInfo.cs", "0.2.0")
 if (not restoreNugetPackages()):
     print ("Unable to restore nuget packages, but continuing anyway as they might already be in place; if there are errors regarding missing packages, fix this!")
 
-if (not build()):
+if (not clearBuildDirectory()):
+    print ("Couldn't clear build directory")
     sys.exit()
+
+
+if (not build()):
     print ("Building solution failed")
+    sys.exit()
 
 if (not killBlacklistFiles()):
-    sys.exit()
     print ("Removing blacklisted files failed. Do not submit this binary, as it might contain copyrighted-material or be broken otherwise.")
+    sys.exit()
