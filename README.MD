@@ -8,7 +8,8 @@ Collecting highscores in old games? Why not collect scores for collecting scores
 3. Follow the extracted README.MD inside the .zip for further instructions
 
 ## Contributing
-Pull requests are accepted; simply clone this repository and set the working directory of the project to `../../../../1_dependencies` to start hacking away. Visual Studio will complain about relative paths but accept them nevertheless.
+Pull requests are accepted; simply clone this repository and set the working directory of the project to `../../../../1_dependencies` to start hacking away. Visual Studio will complain about relative paths but accept them nevertheless.  
+All branches except `master` could be rebased at any time; if you rely on work of them, make sure you're talking to the main owner of that branch or fork it using GitHub and submit a pull request.
 
 ### Building
 #### Automated build process
