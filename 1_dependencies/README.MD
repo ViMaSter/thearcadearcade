@@ -7,6 +7,7 @@ Welcome to the arcade! ...of arcades!
 This release requires the US-version of Super Mario Bros. 1 and Contra and Nestopia v1.37.  
 Copy the ROM-files ending in `.nes` into `platforms/NES/games`; named just like the .JSON-files already placed there.  
 Download Nestopia v1.37, navigate to the folder `platforms/NES/executable` and extract the .zip-file into it. (So that `nestopia.exe` is located at `platforms/NES/executable/nestopia.exe`.)
+Run `thearcadearcade.exe` to start the game.
 
 ## Playing
 
