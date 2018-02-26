@@ -175,6 +175,24 @@ def clearBuildDirectory():
         print ("Build intermediate folder '{}' doesn't exist; skipping it".format(folder))
     return True
 
+def createPlaceholderFiles():
+    executableMapping = {
+        "NES": "nestopia.exe"
+    }
+     
+    for platform in executableMapping:
+        try:
+            filename = "2_build/platforms/{}/executable/PLACE_{}_HERE".format(platform, executableMapping[platform])
+            os.makedirs(os.path.dirname(filename), exist_ok=True)
+            with open(filename, "w") as placeholderFile:
+                placeholderFile.write("Stop reading this and place an emulator here. : >")
+                placeholderFile.close()
+        except IOError as e:
+            print("Error writing the placeholder-file for platform '{}' (executable file '{}'); exception info: {}".format(platform, executableMapping[platform], str(e)))
+            return False
+            
+        return True
+    
 if (not set_version(r"0_vs\thearcadearcade\Properties\AssemblyInfo.cs", "0.2.0")):
     print ("Unable to set version inside AssemblyInfo.cs")
     sys.exit()
@@ -193,4 +211,8 @@ if (not build()):
 
 if (not killBlacklistFiles()):
     print ("Removing blacklisted files failed. Do not submit this binary, as it might contain copyrighted-material or be broken otherwise.")
+    sys.exit()
+
+if (not createPlaceholderFiles()):
+    print ("Couldn't create placeholder files; the build is still valid, but no placeholder have been created")
     sys.exit()
