@@ -75,8 +75,8 @@ def build():
 
     project = r"0_vs\thearcadearcade.sln"
     win32_target = '/t:thearcadearcade:Clean,Build'
-    win32 = '/p:Platform=Any CPU'
-    print("Building '{}' for Any CPU".format(project))
+    win32 = '/p:Platform=x86'
+    print("Building '{}' for x86".format(project))
 
     # making command line to run
     default = [msbuild]
@@ -101,7 +101,7 @@ def killBlacklistFiles():
         "2_build/*.xml",
         "2_build/dump.txt",
         "2_build/platforms/**/*.nes",
-        "2_build/platforms/NES/executable/"
+        "2_build/platforms/NES/executable/",
         "2_build/GPUCache/"
     ]
 
@@ -109,10 +109,15 @@ def killBlacklistFiles():
         for filename in glob.iglob(blacklistItem, recursive=True):
             isFile = os.path.isfile(filename)
             print("Removing {}: '{}'".format("File" if isFile else "Folder", filename))
-            if isFile:
-                os.unlink(filename)
-            else:
-                shutil.rmtree(filename)
+            try:
+                if os.path.isfile(filename):
+                    os.unlink(filename)
+                elif os.path.isdir(filename):
+                    shutil.rmtree(filename)
+            except Exception as e:
+                print("Error deleting file {}:".format(filename))
+                print(e)
+                return False
 
     return True
 
