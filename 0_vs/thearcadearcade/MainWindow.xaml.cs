@@ -23,77 +23,19 @@ namespace thearcadearcade
         }
     }
 
-    class SampleWindowData : INotifyPropertyChanged
+    class GameDataProvider : INotifyPropertyChanged
     {
-        private int score;
-        public int Score
-        {
-            get
-            {
-                return score;
-            }
-            set
-            {
-                score = value;
-            }
-        }
-
-        private int lives;
-        public int Lives
-        {
-            get
-            {
-                return lives;
-            }
-            set
-            {
-                lives = value;
-            }
-        }
-
-        private int coins;
-        public int Coins
-        {
-            get
-            {
-                return coins;
-            }
-            set
-            {
-                coins = value;
-            }
-        }
-
-        private string time;
-        public string Time
-        {
-            get
-            {
-                return time;
-            }
-            set
-            {
-                time = value;
-            }
-        }
-
-        public string state;
-        public string State
-        {
-            get
-            {
-                return state;
-            }
-            set
-            {
-                state = value;
-            }
-        }
+        UI.CEF.ROMDataSupplier supplier;
 
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public GameDataProvider(ref UI.CEF.ROMData ROMdata)
+        {
+            supplier = new UI.CEF.ROMDataSupplier(ref ROMdata);
         }
     }
 
@@ -101,11 +43,14 @@ namespace thearcadearcade
     {
         CefSharp.Wpf.ChromiumWebBrowser browser;
         Library.Player player;
-        SampleWindowData windowData = new SampleWindowData();
+        UI.CEF.ROMData data = new UI.CEF.ROMData();
+        GameDataProvider dataProvider;
 
         public MainWindow()
         {
             InitializeComponent();
+
+            dataProvider = new GameDataProvider(ref this.data);
 
             browser = this.FindName("UI") as CefSharp.Wpf.ChromiumWebBrowser;
             browser.MenuHandler = new UI.CEF.DebugToolsMenuHandler();
@@ -125,33 +70,33 @@ namespace thearcadearcade
             GameHooks.Emulator emulator = new Nestopia();
             player = new Library.Player(emulator, scene);
 
-            this.DataContext = windowData;
+            this.DataContext = dataProvider;
 
             Task task = Task.Run(async () => {
                 do
                 {
                     if (scene.CurrentActIndex == 0)
                     {
-                        windowData.Coins = scene.CurrentAct.Game.GetMemoryArea("coins").GetByte(emulator);
-                        windowData.OnPropertyChanged("Coins");
+                        data.Coins = scene.CurrentAct.Game.GetMemoryArea("coins").GetByte(emulator);
+                        dataProvider.OnPropertyChanged("Coins");
                         byte[] timeBytes =
                         {
                             scene.CurrentAct.Game.GetMemoryArea("timer1stDigit").GetByte(emulator),
                             scene.CurrentAct.Game.GetMemoryArea("timer2ndDigit").GetByte(emulator),
                             scene.CurrentAct.Game.GetMemoryArea("timer3rdDigit").GetByte(emulator),
                         };
-                        windowData.Time = string.Format("{0}{1}{2}", timeBytes[0], timeBytes[1], timeBytes[2]);
-                        windowData.OnPropertyChanged("Time");
+                        data.Time = string.Format("{0}{1}{2}", timeBytes[0], timeBytes[1], timeBytes[2]);
+                        dataProvider.OnPropertyChanged("Time");
                     }
 
                     if (scene.CurrentActIndex == 1)
                     {
                         try
                         {
-                            windowData.Score = scene.CurrentAct.Game.GetMemoryArea("kills").GetByte(emulator);
-                            windowData.OnPropertyChanged("Score");
-                            windowData.Lives = scene.CurrentAct.Game.GetMemoryArea("lives").GetByte(emulator);
-                            windowData.OnPropertyChanged("Lives");
+                            data.Score = scene.CurrentAct.Game.GetMemoryArea("kills").GetByte(emulator);
+                            dataProvider.OnPropertyChanged("Score");
+                            data.Lives = scene.CurrentAct.Game.GetMemoryArea("lives").GetByte(emulator);
+                            dataProvider.OnPropertyChanged("Lives");
                         }
                         catch (Exception e)
                         {
@@ -159,8 +104,8 @@ namespace thearcadearcade
                         }
                     }
 
-                    windowData.State = emulator.CurrentState.ToString();
-                    windowData.OnPropertyChanged("State");
+                    data.State = emulator.CurrentState.ToString();
+                    dataProvider.OnPropertyChanged("State");
 
                     await Task.Delay(17);
                 } while (true);

@@ -6,6 +6,7 @@
         xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         xmlns:local="clr-namespace:thearcadearcade"
         xmlns:cefSharp="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
+        xmlns:isDebug="debug-mode"
         mc:Ignorable="d"
         AllowsTransparency="True"
         WindowStyle="None"
@@ -48,7 +49,13 @@
             </Grid>
         </GroupBox>
 
-
-        <cefSharp:ChromiumWebBrowser x:Name="UI"  Address="http://vimaster.de/?transparent" />
+        <mc:AlternateContent>
+            <mc:Choice Requires="isDebug">
+                <cefSharp:ChromiumWebBrowser x:Name="UI"  Address="file:///C:/Users/vmahnke/Desktop/em/1_dependencies/ui/ingame.html#debug" />
+            </mc:Choice>
+            <mc:Fallback>
+                <cefSharp:ChromiumWebBrowser x:Name="UI"  Address="file:///C:/Users/vmahnke/Desktop/em/1_dependencies/ui/ingame.html" />
+            </mc:Fallback>
+        </mc:AlternateContent>
     </Grid>
 </Window>

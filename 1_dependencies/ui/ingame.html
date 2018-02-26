@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Ingame UI</title>
+    <style media="screen">
+    /* http://meyerweb.com/eric/tools/css/reset/
+    v2.0 | 20110126
+    License: none (public domain)
+    */
+
+    html, body, div, span, applet, object, iframe,
+    h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+    a, abbr, acronym, address, big, cite, code,
+    del, dfn, em, img, ins, kbd, q, s, samp,
+    small, strike, strong, sub, sup, tt, var,
+    b, u, i, center,
+    dl, dt, dd, ol, ul, li,
+    fieldset, form, label, legend,
+    table, caption, tbody, tfoot, thead, tr, th, td,
+    article, aside, canvas, details, embed,
+    figure, figcaption, footer, header, hgroup,
+    menu, nav, output, ruby, section, summary,
+    time, mark, audio, video {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        font-size: 100%;
+        font: inherit;
+        vertical-align: baseline;
+    }
+    /* HTML5 display-role reset for older browsers */
+    article, aside, details, figcaption, figure,
+    footer, header, hgroup, menu, nav, section {
+        display: block;
+    }
+    body {
+        line-height: 1;
+    }
+    ol, ul {
+        list-style: none;
+    }
+    blockquote, q {
+        quotes: none;
+    }
+    blockquote:before, blockquote:after,
+    q:before, q:after {
+        content: '';
+        content: none;
+    }
+    table {
+        border-collapse: collapse;
+        border-spacing: 0;
+    }
+    </style>
+    <style media="screen">
+    .debug .gameCutout
+    {
+        background-color: #DDD;
+    }
+
+    .debug .blocker
+    {
+        background-color: #CCC;
+    }
+    </style>
+    <style media="screen">
+    body
+    {
+        background: transparent;
+    }
+
+    .blocker
+
+    {
+        background: rgba(0, 0, 0, 0.5)
+    }
+
+    *
+    {
+        font-family: Sans-serif !important;
+    }
+
+    .wrapper
+    {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 100vw;
+        height: 100vh;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .gameWrapper
+    {
+        display: flex;
+        width: 100%;
+    }
+
+    .gameWrapper > *
+    {
+        height: 100%;
+        margin: auto;
+    }
+
+    .blocker
+    {
+        flex-grow: 1;
+        width: 100%;
+    }
+
+    .memoryItem
+    {
+        position: relative;
+    }
+
+    .memoryItem .value
+    {
+        position: absolute;
+        left: 50%;
+    }
+
+    .memoryItem .key, .memoryItem .value
+    {
+        font-size: 26px;
+    }
+
+    .gameContainer
+    {
+        padding: 10px 20px;
+    }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="gameWrapper">
+            <div class="blocker">
+
+            </div>
+            <div class="gameCutout">
+
+            </div>
+            <div class="blocker gameInfo">
+                <div class="gameContainer" data-json-key="smb">
+                    <div class="memoryItem" data-json-key="Coins">
+                        <span class="key">coins: </span>
+                        <span class="value">99</span>
+                    </div>
+                    <div class="memoryItem" data-json-key="Time">
+                        <span class="key">time: </span>
+                        <span class="value">999</span>
+                    </div>
+                </div>
+                <div class="gameContainer" data-json-key="contra">
+                    <div class="memoryItem" data-json-key="Score">
+                        <span class="key">score: </span>
+                        <span class="value">58754687</span>
+                    </div>
+                    <div class="memoryItem" data-json-key="Lives">
+                        <span class="key">lives: </span>
+                        <span class="value">10</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+    class WebsocketClient
+    {
+        OnOpen(event)
+        {
+            console.log("Open event!");
+            console.log(event);
+        }
+
+        OnClose(event)
+        {
+            console.log("Close event!");
+            console.log(event);
+        }
+
+        OnMessage(event)
+        {
+            const response = JSON.parse(event.data);
+            this.OnKeyUpdate(response.Key, response.Value);
+        }
+
+        OnKeyUpdate(key, value)
+        {
+            var memoryKey = this.dw.GameContainer["contra"].MemoryItems[key];
+            if (memoryKey != undefined)
+            {
+                memoryKey.Update(value);
+            }
+
+            var memoryKey = this.dw.GameContainer["smb"].MemoryItems[key];
+            if (memoryKey != undefined)
+            {
+                memoryKey.Update(value);
+            }
+        }
+
+        constructor(DataWrapper)
+        {
+            this.dw = DataWrapper;
+            this.ws = new WebSocket("ws://localhost:8229/update");
+            this.ws.onopen = this.OnOpen.bind(this);
+            this.ws.onclose = this.OnClose.bind(this);
+            this.ws.onmessage = this.OnMessage.bind(this);
+        }
+    }
+
+    class MemoryItem
+    {
+        constructor(HTMLElement)
+        {
+            this.KeyElement = HTMLElement.querySelector(".key");
+            this.ValueElement = HTMLElement.querySelector(".value");
+            this.Key = HTMLElement.dataset["jsonKey"];
+            this.Value = null;
+        }
+
+        Update(newValue)
+        {
+            if (this.Value === newValue)
+            {
+                return;
+            }
+
+            console.log("Key '%s' changed from value '%s' to '%s'.", this.Key, this.Value, newValue);
+
+            this.Value = newValue;
+            this.ValueElement.innerHTML = this.Value;
+        }
+    }
+    class GameContainer
+    {
+        constructor(HTMLElement)
+        {
+            this.MemoryItems = {};
+            const items = HTMLElement.querySelectorAll(".memoryItem");
+            for (let i = 0; i < items.length; i++)
+            {
+                this.MemoryItems[items[i].dataset["jsonKey"]] = new MemoryItem(items[i]);
+            }
+        }
+    }
+    class DataWrapper
+    {
+        constructor(HTMLElement)
+        {
+            this.GameContainer = {};
+            const gameContainer = HTMLElement.querySelectorAll(".gameContainer");
+            for (let i = 0; i < gameContainer.length; i++)
+            {
+                this.GameContainer[gameContainer[i].dataset["jsonKey"]] = new GameContainer(gameContainer[i]);
+            }
+        }
+
+        IsRunningInBrowser()
+        {
+            return location.hash.length > 0 && !location.hash.includes("game");
+        }
+
+        IsDebug()
+        {
+            return location.hash.includes("debug");
+        }
+
+        SetGameWindowResolution(width, height)
+        {
+            document.querySelector(".gameCutout").style.width = width + "px";
+            document.querySelector(".gameCutout").style.minWidth = width + "px";
+            document.querySelector(".gameCutout").style.maxWidth = width + "px";
+            document.querySelector(".gameWrapper").style.height = height + "px";
+            document.querySelector(".gameWrapper").style.minHeight = height + "px";
+            document.querySelector(".gameWrapper").style.maxHeight = height + "px";
+        }
+    };
+    </script>
+    <script type="text/javascript">
+    window.onload = function()
+    {
+        window.DataWrapper = new DataWrapper(document.querySelector(".gameInfo"));
+        window.DataWrapper.SetGameWindowResolution(1024, 960);
+
+        if (window.DataWrapper.IsDebug())
+        {
+            document.querySelector("body").classList.add("debug");
+        }
+
+        window.ws = new WebsocketClient(window.DataWrapper);
+    };
+    </script>
+</body>
+</html>

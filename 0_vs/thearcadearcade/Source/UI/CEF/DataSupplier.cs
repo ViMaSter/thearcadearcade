@@ -6,30 +6,15 @@ using Newtonsoft.Json;
 
 namespace thearcadearcade.UI.CEF
 {
-    partial class AllReturnService<DataContainer> : WebSocketBehavior
-    {
-        DataContainer container;
-        public AllReturnService(ref DataContainer dataContainer)
-        {
-            container = dataContainer;
-        }
-
-        protected override void OnMessage(MessageEventArgs e)
-        {
-            Console.WriteLine("WebSocket message received: '{}'", e.Data);
-            Send(JsonConvert.SerializeObject(container));
-        }
-    }
-
-    partial class ByKeyReturnService<DataContainer> : WebSocketBehavior
+    partial class ConstantUpdateByKey<DataContainer> : WebSocketBehavior
     {
         struct Response
         {
-            public string Type;
+            public string Key;
             public string Value;
-            public Response(string type, string value)
+            public Response(string key, string value)
             {
-                Type = type;
+                Key = key;
                 Value = value;
             }
         }
@@ -39,7 +24,7 @@ namespace thearcadearcade.UI.CEF
         }
 
         DataContainer container;
-        public ByKeyReturnService(ref DataContainer dataContainer)
+        public ConstantUpdateByKey(ref DataContainer dataContainer)
         {
             container = dataContainer;
         }
@@ -50,7 +35,16 @@ namespace thearcadearcade.UI.CEF
             Request request = JsonConvert.DeserializeObject<Request>(e.Data);
             Send(
                 JsonConvert.SerializeObject(
-                    new Response (container.GetType().GetProperty(request.key).PropertyType.Name, container.GetType().GetProperty(request.key).ToString() )
+                    new Response (container.GetType().GetProperty(request.key).Name, container.GetType().GetProperty(request.key).ToString() )
+                )
+            );
+        }
+
+        public void UpdateField(string key)
+        {
+            Sessions?.Broadcast(
+                JsonConvert.SerializeObject(
+                    new Response(container.GetType().GetProperty(key).Name, container.GetType().GetProperty(key).GetValue(container).ToString())
                 )
             );
         }
@@ -60,7 +54,7 @@ namespace thearcadearcade.UI.CEF
     partial class DataSupplierServer<DataContainer>
     {
         WebSocketServer server;
-        AllReturnService<DataContainer> allReturnService;
+        ConstantUpdateByKey<DataContainer> constantUpdate;
 
         public WebSocketServer Server
         {
@@ -70,19 +64,24 @@ namespace thearcadearcade.UI.CEF
             }
         }
 
+        public void UpdateField(string key)
+        {
+            constantUpdate.UpdateField(key);
+        }
 
         public DataSupplierServer(ref DataContainer dataContainer)
         {
-            // 8228 == [T]he[A]rcade[A]rcade[W]ebsocket
-            server = new WebSocketServer(8228);
+            // 8229 == [T]he[A]rcade[A]rcade[W]ebsocket
+            server = new WebSocketServer(8229);
 #if DEBUG
             server.Log.Level = LogLevel.Trace;
 #else
             server.Log.Level = LogLevel.Error;
 #endif
 
-            allReturnService = (AllReturnService<DataContainer>)Activator.CreateInstance(typeof(AllReturnService<DataContainer>), dataContainer);
-            server.AddWebSocketService<AllReturnService<DataContainer>>("/alldata", () => allReturnService);
+            constantUpdate = (ConstantUpdateByKey<DataContainer>)Activator.CreateInstance(typeof(ConstantUpdateByKey<DataContainer>), dataContainer);
+            server.AddWebSocketService<ConstantUpdateByKey<DataContainer>>("/update", () => constantUpdate);
+            server.Start();
         }
 
         ~DataSupplierServer()
@@ -93,6 +92,18 @@ namespace thearcadearcade.UI.CEF
 
     class ROMData
     {
+        private ROMDataSupplier server;
+        public ROMDataSupplier Server
+        {
+            set
+            {
+                if (server == null)
+                {
+                    server = value;
+                }
+            }
+        }
+
         private int score;
         public int Score
         {
@@ -103,6 +114,7 @@ namespace thearcadearcade.UI.CEF
             set
             {
                 score = value;
+                server?.UpdateField("Score");
             }
         }
 
@@ -116,6 +128,7 @@ namespace thearcadearcade.UI.CEF
             set
             {
                 lives = value;
+                server?.UpdateField("Lives");
             }
         }
 
@@ -129,6 +142,7 @@ namespace thearcadearcade.UI.CEF
             set
             {
                 coins = value;
+                server?.UpdateField("Coins");
             }
         }
 
@@ -142,6 +156,7 @@ namespace thearcadearcade.UI.CEF
             set
             {
                 time = value;
+                server?.UpdateField("Time");
             }
         }
 
@@ -155,16 +170,19 @@ namespace thearcadearcade.UI.CEF
             set
             {
                 state = value;
+                server?.UpdateField("State");
             }
         }
     }
 
     class ROMDataSupplier : DataSupplierServer<ROMData>
     {
+        ROMData container;
         public ROMDataSupplier(ref ROMData data)
             : base(ref data)
         {
-
+            container = data;
+            container.Server = this;
         }
     }
 }
