@@ -10,8 +10,23 @@ Download Nestopia v1.37, navigate to the folder `platforms/NES/executable` and e
 
 ## Playing
 
+### Controls
+
+| NES Controller | Keyboard       |
+| -------------- | -------------- |
+| Up             | Up             |
+| Down           | Down           |
+| Left           | Left           |
+| Right          | Right          |
+| B              | , _(comma)_    |
+| A              | . _(period)_   |
+| Select         | Right Shift    |
+| Start          | Enter (return) |
+
+### Objectives
+
 1. Start `thearcadearcade.exe`
 2. Collect 20 coins in Super Mario Bros. 1
-3. Kill 10 enemies / (destroy turrets / collect items for bonus points) in Contra
-4. Notice the score in the Pop-Up (which might actually be a pop-under)
+3. Kill 10 enemies (/ destroy turrets / collect items for bonus points) in Contra
+4. Notice the score in the Pop-Up (which might actually be a Pop-Under)
 5. That's... that's about it for now. Sorry 'bout that.
