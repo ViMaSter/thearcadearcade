@@ -52,6 +52,9 @@ namespace thearcadearcade
 
             UI.MenuHandler = new UI.CEF.DebugToolsMenuHandler();
 
+            States.Manager manager = new States.Manager();
+            manager.SetState(new States.Initialization());
+
             this.Width = SystemParameters.WorkArea.Width;
             this.Height = SystemParameters.WorkArea.Height;
             UI.Width = SystemParameters.WorkArea.Width;

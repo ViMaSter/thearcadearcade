@@ -79,6 +79,10 @@
     <Compile Include="Source\Library\PlatformGameList.cs" />
     <Compile Include="Source\Library\Player.cs" />
     <Compile Include="Source\Library\Scene.cs" />
+    <Compile Include="Source\States\Base.cs" />
+    <Compile Include="Source\States\Ingame.cs" />
+    <Compile Include="Source\States\Initialization.cs" />
+    <Compile Include="Source\States\Manager.cs" />
     <Compile Include="Source\UI\CEF\DataSupplier.cs" />
     <Compile Include="Source\UI\CEF\DebugToolsMenuHandler.cs" />
     <Page Include="MainWindow.xaml">
