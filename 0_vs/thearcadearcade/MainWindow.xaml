@@ -10,45 +10,12 @@
         mc:Ignorable="d"
         AllowsTransparency="True"
         WindowStyle="None"
-        WindowState="Maximized"
-        Title="MainWindow" Height="350" Width="525">
+        WindowState="Normal"
+        Title="MainWindow" Top="0" Left="0">
     <Window.Background>
         <SolidColorBrush Opacity="0.0" Color="White"/>
     </Window.Background>
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition Width="0*"/>
-        </Grid.ColumnDefinitions>
-        <Label x:Name="emulatorStateLabel" Content="Emulator state:" HorizontalAlignment="Left" Margin="21,20,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="emulatorStateValue" Content="{Binding Path=State}" HorizontalAlignment="Left" Margin="122,20,0,0" VerticalAlignment="Top" Height="26" Width="331"/>
-        <GroupBox x:Name="groupBox" Header="Act 1 state" HorizontalAlignment="Left" Margin="21,78,0,0" VerticalAlignment="Top" Height="231" Width="207">
-            <Grid Height="221" VerticalAlignment="Bottom" Margin="0,0,-2,-12">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="5*"/>
-                    <ColumnDefinition Width="71"/>
-                    <ColumnDefinition Width="2*"/>
-                </Grid.ColumnDefinitions>
-                <Label x:Name="coinsLabel" Content="Current coins:&#xD;&#xA;" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="26" Width="80"/>
-                <Label x:Name="timeLabel" Content="Time left" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" Width="80" Height="26"/>
-                <Label x:Name="coinsValue"  Content="{Binding Path=Coins}" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="26" Grid.Column="1" Width="87" Grid.ColumnSpan="2"/>
-                <Label x:Name="timeValue" Content="{Binding Path=Time}" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" Width="87" Grid.Column="1" Height="26" Grid.ColumnSpan="2"/>
-            </Grid>
-        </GroupBox>
-        <GroupBox x:Name="groupBox_Copy" Header="Act 2 state" HorizontalAlignment="Left" Margin="233,78,0,0" VerticalAlignment="Top" Height="231" Width="207">
-            <Grid Height="221" VerticalAlignment="Bottom" Margin="0,0,-2,-12">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="5*"/>
-                    <ColumnDefinition Width="71"/>
-                    <ColumnDefinition Width="2*"/>
-                </Grid.ColumnDefinitions>
-                <Label x:Name="coinsLabel1" Content="Score" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="26" Width="80"/>
-                <Label x:Name="timeLabel1" Content="Lives" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" Width="80" Height="26"/>
-                <Label x:Name="coinsValue1"  Content="{Binding Score}" HorizontalAlignment="Left" Margin="5,10,0,0" VerticalAlignment="Top" Height="26" Grid.Column="1" Width="92" Grid.ColumnSpan="2"/>
-                <Label x:Name="timeValue1" Content="{Binding Lives}" HorizontalAlignment="Left" Margin="5,41,0,0" VerticalAlignment="Top" Width="92" Grid.Column="1" Height="26" Grid.ColumnSpan="2"/>
-            </Grid>
-        </GroupBox>
-
         <mc:AlternateContent>
             <mc:Choice Requires="isDebug">
                 <cefSharp:ChromiumWebBrowser x:Name="UI"  Address="file:///C:/Users/vmahnke/Desktop/em/1_dependencies/ui/ingame.html#debug" />

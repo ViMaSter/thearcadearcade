@@ -25,12 +25,14 @@ namespace thearcadearcade.Helper
         public const int WS_EX_CLIENTEDGE = 0x00000200; //window menu  
         public const int WS_EX_DLGMODALFRAME = 0x00000001; //window menu  
         public const int WS_EX_WINDOWEDGE = 0x00000100; //window menu  
+        public const int WS_EX_TOPMOST = 0x00000008;
         public const int WS_EX_STATICEDGE = 0x00020000; //window menu  
         public const int SWP_FRAMECHANGED = 0x0020; //window menu  
         public const int SWP_NOMOVE = 0x0002; //window menu  
         public const int SWP_NOSIZE = 0x0001; //window menu  
         public const int SWP_NOZORDER = 0x0004; //window menu  
         public const int SWP_NOOWNERZORDER = 0x0200; //window menu  
+        public const int HWND_BOTTOM = 1; //window menu  
 
         [DllImport("kernel32.dll")]
         public static extern IntPtr OpenProcess(int dwDesiredAccess, bool bInheritHandle, int dwProcessId);
@@ -119,7 +121,7 @@ namespace thearcadearcade.Helper
             int exStyle = GetWindowLongPtr(pFoundWindow, GWL_EXSTYLE);
             int error = 0;
 
-            style &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZE | WS_SYSMENU);
+            style &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZE);
             SetWindowLongPtr(pFoundWindow, GWL_STYLE, new IntPtr(style));
 
             error = Marshal.GetLastWin32Error();
@@ -129,15 +131,17 @@ namespace thearcadearcade.Helper
             error = Marshal.GetLastWin32Error();
             style = GetWindowLongPtr(pFoundWindow, GWL_STYLE);
             error = Marshal.GetLastWin32Error();
+            exStyle = GetWindowLongPtr(pFoundWindow, GWL_EXSTYLE);
+            error = Marshal.GetLastWin32Error();
 
             // Negative margins have special meaning to DwmExtendFrameIntoClientArea.
             // Negative margins create the "sheet of glass" effect, where the client area
             // is rendered as a solid surface with no window border.
             MARGINS margins = new Helper.WinAPI.MARGINS();
-            margins.bottomHeight = 10;
-            margins.leftWidth    = 10;
-            margins.rightWidth   = 10;
-            margins.topHeight    = 10;
+            margins.bottomHeight = -1;
+            margins.leftWidth    = -1;
+            margins.rightWidth   = -1;
+            margins.topHeight    = -1;
             DwmExtendFrameIntoClientArea(windowHandle, ref margins);
 
             error = Marshal.GetLastWin32Error();
@@ -161,10 +165,17 @@ namespace thearcadearcade.Helper
                 }
             } while (true);
 
-            SetWindowPos(windowHandle, new IntPtr(), (int)((currentResolution.Width - maxResolution.Width) / 2), (int)((currentResolution.Height - maxResolution.Height) / 2), (int)maxResolution.Width, (int)maxResolution.Height, SWP_FRAMECHANGED | SWP_NOZORDER | SWP_NOOWNERZORDER);
+#if DEBUG
+            uint windowProperties = SWP_FRAMECHANGED | SWP_NOOWNERZORDER;
+#else
+            uint windowProperties = SWP_FRAMECHANGED | SWP_NOOWNERZORDER | SWP_NOZORDER;
+#endif
+
+            SetWindowPos(windowHandle, new IntPtr(HWND_BOTTOM), (int)((currentResolution.Width - maxResolution.Width) / 2), (int)((currentResolution.Height - maxResolution.Height) / 2), (int)maxResolution.Width, (int)maxResolution.Height, windowProperties);
+            SetForegroundWindow(windowHandle);
             error = Marshal.GetLastWin32Error();
         }
-
+         
         // REQUIRED STRUCTS
         public struct MEMORY_BASIC_INFORMATION
         {

@@ -50,10 +50,12 @@ namespace thearcadearcade
         {
             InitializeComponent();
 
-            dataProvider = new GameDataProvider(ref this.data);
+            UI.MenuHandler = new UI.CEF.DebugToolsMenuHandler();
 
-            browser = this.FindName("UI") as CefSharp.Wpf.ChromiumWebBrowser;
-            browser.MenuHandler = new UI.CEF.DebugToolsMenuHandler();
+            this.Width = SystemParameters.WorkArea.Width;
+            this.Height = SystemParameters.WorkArea.Height;
+            UI.Width = SystemParameters.WorkArea.Width;
+            UI.Height = SystemParameters.WorkArea.Height;
 
             Dictionary<string, Library.PlatformGameList> gamesPerPlatform = new Dictionary<string, Library.PlatformGameList>();
 
@@ -70,7 +72,7 @@ namespace thearcadearcade
             GameHooks.Emulator emulator = new Nestopia();
             player = new Library.Player(emulator, scene);
 
-            this.DataContext = dataProvider;
+            dataProvider = new GameDataProvider(ref data);
 
             Task task = Task.Run(async () => {
                 do
