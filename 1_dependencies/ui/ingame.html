@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Ingame UI</title>
+    <script src="appbridge.js" charset="utf-8"></script>
     <style media="screen">
     /* http://meyerweb.com/eric/tools/css/reset/
     v2.0 | 20110126
@@ -134,13 +135,20 @@
     {
         padding: 10px 20px;
     }
+
+    button
+    {
+        width: 100%;
+        height: 10vh;
+        font-size: 2vh;
+    }
     </style>
 </head>
 <body>
     <div class="wrapper">
         <div class="gameWrapper">
             <div class="blocker">
-
+                <button type="button" name="button" onclick="app.exit()">Close</button>
             </div>
             <div class="gameCutout">
 

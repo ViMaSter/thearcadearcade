@@ -1,10 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 
 namespace thearcadearcade
 {
+    class AppCallbacks
+    {
+        public void Exit()
+        {
+            Environment.Exit(0);
+        }
+    }
+
     class Nestopia : GameHooks.Emulator
     {
         public Nestopia()

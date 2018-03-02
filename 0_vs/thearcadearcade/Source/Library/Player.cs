@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Threading;
 
 using thearcadearcade.Helper;
 
@@ -140,7 +138,7 @@ namespace thearcadearcade.Library
                     emulator = null;
                     WinAPI.SetForegroundWindow(Process.GetCurrentProcess().MainWindowHandle);
                     MessageBox.Show(string.Format("Current score: {0}", scorePerAct.Sum()), "Game completed!", MessageBoxButton.OK);
-                    Environment.Exit(1);
+                    Environment.Exit(0);
                     // @TODO: Submit high-score
                 }
                 else
