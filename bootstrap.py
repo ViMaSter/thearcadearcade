@@ -75,13 +75,17 @@ def build():
 
     project = r"0_vs\thearcadearcade.sln"
     win32_target = '/t:thearcadearcade:Clean,Build'
-    win32 = '/p:Platform=x86'
-    print("Building '{}' for x86".format(project))
+    platform = 'x86'
+    configuration = 'Release'
+    platformParameter= '/p:Platform=' + platform
+    configurationParameter = '/p:Configuration=' + configuration
+    print("Building '{}' for '{}' (config '{})".format(project, platform, configuration))
 
     # making command line to run
     default = [msbuild]
     default.append(project)    # append a project/solution name to build command-line
-    default.append(win32)
+    default.append(platformParameter)
+    default.append(configurationParameter)
     default.append(win32_target)
     default.append('/m:1')  # https://msdn.microsoft.com/en-us/library/ms164311.aspx
 
@@ -198,6 +202,19 @@ def createPlaceholderFiles():
             return False
             
         return True
+
+import subprocess
+def createRunScript():
+    filename = "run.py"
+    try:
+        with open(filename, "w") as runFile:
+            runFile.writelines(line + '\n' for line in ["import subprocess", "subprocess.Popen(r'2_build/thearcadearcade.exe', cwd=r'1_dependencies')"])
+            runFile.close()
+    except IOError as e:
+        print("Error writing the run-file to '{}'; exception info: {}".format(os.path.abspath(filename), str(e)))
+        return False
+            
+    return True
     
 if (not set_version(r"0_vs\thearcadearcade\Properties\AssemblyInfo.cs", "0.2.0")):
     print ("Unable to set version inside AssemblyInfo.cs")
@@ -221,4 +238,7 @@ if (not killBlacklistFiles()):
 
 if (not createPlaceholderFiles()):
     print ("Couldn't create placeholder files; the build is still valid, but no placeholder have been created")
+    sys.exit()
+if (not createRunScript()):
+    print ("Couldn't create quick-run script; the build is still valid, but no shortcut to run this build has been created")
     sys.exit()

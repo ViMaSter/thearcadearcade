@@ -15,6 +15,7 @@ All branches except `master` could be rebased at any time; if you rely on work o
 #### Automated build process
 Requires **Microsoft Build Tools 2015** and **python 3.4+**:  
 Simply run `python bootstrap.py build`. The compiled binary will live as `thearcardearcade.exe` inside `/2_build`.
+Afterwards, run `python run.py` to start the build. This will run the build produced, but using the ROMs + emulator-executables inside `1_dependencies`, as they are stripped from the build's target directory.
 
 #### Manual build process
 Requires **Microsoft Visual Studio 2015/2017**:  
