@@ -4,10 +4,21 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 
+namespace AppCallbacks
+{
+}
+
 namespace thearcadearcade
 {
-    class AppCallbacks
+    public class AppCallbacks
     {
+        CefSharp.Wpf.ChromiumWebBrowser browser;
+
+        public AppCallbacks(CefSharp.Wpf.ChromiumWebBrowser browser)
+        {
+            this.browser = browser;
+        }
+
         public void Exit()
         {
             Environment.Exit(0);
@@ -27,6 +38,13 @@ namespace thearcadearcade
         Library.Player player;
         UI.CEF.ROMData data = new UI.CEF.ROMData();
         UI.CEF.ROMDataSupplier supplier;
+        AppCallbacks uiCallbacks;
+
+        public AppCallbacks SetAppCallbacks(AppCallbacks callbacks)
+        {
+            uiCallbacks = callbacks;
+            return uiCallbacks;
+        }
 
         public TheArcadeArcadeApp()
         {

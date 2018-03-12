@@ -227,7 +227,6 @@ if (not clearBuildDirectory()):
     print ("Couldn't clear build directory")
     sys.exit()
 
-
 if (not build()):
     print ("Building solution failed")
     sys.exit()
@@ -239,6 +238,7 @@ if (not killBlacklistFiles()):
 if (not createPlaceholderFiles()):
     print ("Couldn't create placeholder files; the build is still valid, but no placeholder have been created")
     sys.exit()
+    
 if (not createRunScript()):
     print ("Couldn't create quick-run script; the build is still valid, but no shortcut to run this build has been created")
     sys.exit()

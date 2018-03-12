@@ -10,12 +10,15 @@ namespace thearcadearcade
 
             UI.MenuHandler = new UI.CEF.DebugToolsMenuHandler();
 
-            UI.JavascriptObjectRepository.ResolveObject += (sender, e) =>
+            UI.JavascriptObjectRepository.ResolveObject += (sender, currentEvent) =>
             {
-                var repo = e.ObjectRepository;
-                if (e.ObjectName == "app")
+                CefSharp.IJavascriptObjectRepository repository = currentEvent.ObjectRepository;
+                if (currentEvent.ObjectName == "app")
                 {
-                    repo.Register("app", new AppCallbacks(), true);
+                    AppCallbacks callbacks = new AppCallbacks(UI);
+                    ((TheArcadeArcadeApp)Application.Current).SetAppCallbacks(callbacks);
+                    repository.Register("app", callbacks, true);
+
                 }
             };
 
@@ -23,6 +26,7 @@ namespace thearcadearcade
             this.Height = SystemParameters.WorkArea.Height;
             UI.Width = SystemParameters.WorkArea.Width;
             UI.Height = SystemParameters.WorkArea.Height;
+
         }
     }
 }

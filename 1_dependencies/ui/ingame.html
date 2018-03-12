@@ -200,17 +200,7 @@
 
         OnKeyUpdate(key, value)
         {
-            var memoryKey = this.dw.GameContainer["contra"].MemoryItems[key];
-            if (memoryKey != undefined)
-            {
-                memoryKey.Update(value);
-            }
-
-            var memoryKey = this.dw.GameContainer["smb"].MemoryItems[key];
-            if (memoryKey != undefined)
-            {
-                memoryKey.Update(value);
-            }
+            window.Databinding.UpdateValue(key, value);
         }
 
         constructor(DataWrapper)
@@ -231,16 +221,15 @@
             this.ValueElement = HTMLElement.querySelector(".value");
             this.Key = HTMLElement.dataset["jsonKey"];
             this.Value = null;
+            window.Databinding.Subscribe(this.Key, this.Update.bind(this));
         }
 
-        Update(newValue)
+        Update(key, newValue)
         {
             if (this.Value === newValue)
             {
                 return;
             }
-
-            console.log("Key '%s' changed from value '%s' to '%s'.", this.Key, this.Value, newValue);
 
             this.Value = newValue;
             this.ValueElement.innerHTML = this.Value;
@@ -290,10 +279,73 @@
             document.querySelector(".gameWrapper").style.maxHeight = height + "px";
         }
     };
+    
+    // If you happen to read this: Thanks for making UI-development less painful, knight666. <3
+    class Databinding
+    {
+        constructor()
+        {
+            this.values = {};
+            this.subscriptions = {};
+        }
+        
+        
+        GetValue(key)
+        {
+            if (!values.hasOwnProperty(key))
+            {
+                return this.values[key];
+            }
+            return null;
+        }
+        
+        UpdateValue(key, value)
+        {
+            if (this.subscriptions.hasOwnProperty(key))
+            {
+                for (let i = 0; i < this.subscriptions[key].length; i++)
+                {
+                    if (this.subscriptions[key])
+                    {
+                        this.subscriptions[key][i](key, value);
+                    }
+                }
+            }
+            
+            this.values[key] = value;
+        }
+        
+        Subscribe(key, callback)
+        {
+            if (!this.subscriptions.hasOwnProperty(key))
+            {
+                this.subscriptions[key] = [];
+            }
+            
+            return this.subscriptions[key].push(callback);
+        }
+        Unsubscribe(key, id)
+        {
+            if (this.subscriptions.hasOwnProperty(key))
+            {
+                console.warn("Trying to unsubscribe id '%d' from key '%s' but nothing is subscribed to this key!", id, key);
+                return false;
+            }
+            
+            if (this.subscriptions[key].hasOwnProperty(id))
+            {
+                console.warn("Trying to unsubscribe id '%d' from key '%s' but there's only %d listeners subscribed!", id, key, this.subscriptions[key].length);
+                return false;
+            }
+            
+            this.subscriptions[key][id] = null;
+        }
+    }
     </script>
     <script type="text/javascript">
     window.onload = function()
     {
+        window.Databinding = new Databinding();
         window.DataWrapper = new DataWrapper(document.querySelector(".gameInfo"));
         window.DataWrapper.SetGameWindowResolution(1024, 960);
 
@@ -302,7 +354,7 @@
             document.querySelector("body").classList.add("debug");
         }
 
-        window.ws = new WebsocketClient(window.DataWrapper);
+        window.ws = new WebsocketClient(window.Databinding);
     };
     </script>
 </body>

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Drawing;
 
 namespace thearcadearcade.GameHooks
 {
@@ -33,6 +34,19 @@ namespace thearcadearcade.GameHooks
         Process CurrentProcess;
         IntPtr ProcessHandle;
         UIntPtr[] ProcessAddressSpan = new UIntPtr[2];
+
+        int[] currentWindowDimensions = new int[0];
+        int[] CurrentWindowDimensions
+        {
+            get
+            {
+                return currentWindowDimensions;
+            }
+            set
+            {
+                currentWindowDimensions = value;
+            }
+        }
 
         int BaseGameMemoryAddress;
         public enum State
@@ -247,7 +261,7 @@ namespace thearcadearcade.GameHooks
                     {
                         if (buffer[0] != 0xFF)
                         {
-                            Helper.WinAPI.WindowsReStyle(CurrentProcess.MainWindowHandle);
+                            this.CurrentWindowDimensions = Helper.WinAPI.WindowsReStyle(CurrentProcess.MainWindowHandle);
                             currentState = State.RUNNING;
                             break;
                         }

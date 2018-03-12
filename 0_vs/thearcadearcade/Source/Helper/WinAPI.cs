@@ -114,7 +114,7 @@ namespace thearcadearcade.Helper
         [DllImport("user32.dll", SetLastError = true)]
         static extern bool SetWindowPos(IntPtr hWindow, IntPtr hWindowInserAfter, int x, int y, int cx, int cy, uint uFlags);
 
-        public static void WindowsReStyle(IntPtr windowHandle)
+        public static int[] WindowsReStyle(IntPtr windowHandle)
         {
             IntPtr pFoundWindow = windowHandle;
             int style = GetWindowLongPtr(pFoundWindow, GWL_STYLE);
@@ -139,9 +139,9 @@ namespace thearcadearcade.Helper
             // is rendered as a solid surface with no window border.
             MARGINS margins = new Helper.WinAPI.MARGINS();
             margins.bottomHeight = -1;
-            margins.leftWidth    = -1;
-            margins.rightWidth   = -1;
-            margins.topHeight    = -1;
+            margins.leftWidth = -1;
+            margins.rightWidth = -1;
+            margins.topHeight = -1;
             DwmExtendFrameIntoClientArea(windowHandle, ref margins);
 
             error = Marshal.GetLastWin32Error();
@@ -152,7 +152,7 @@ namespace thearcadearcade.Helper
             // force a redraw
             DrawMenuBar(windowHandle);
 
-            Rect resolution = new Rect( 0, 0, 256, 240 );
+            Rect resolution = new Rect(0, 0, 256, 240);
             Rect currentResolution = SystemParameters.WorkArea;
             Rect maxResolution = resolution;
             do
@@ -174,6 +174,8 @@ namespace thearcadearcade.Helper
             SetWindowPos(windowHandle, new IntPtr(HWND_BOTTOM), (int)((currentResolution.Width - maxResolution.Width) / 2), (int)((currentResolution.Height - maxResolution.Height) / 2), (int)maxResolution.Width, (int)maxResolution.Height, windowProperties);
             SetForegroundWindow(windowHandle);
             error = Marshal.GetLastWin32Error();
+
+            return new int[] { (int)maxResolution.Width, (int)maxResolution.Height };
         }
          
         // REQUIRED STRUCTS
