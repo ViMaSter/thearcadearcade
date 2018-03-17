@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using Newtonsoft.Json;
 
@@ -44,7 +45,8 @@ namespace thearcadearcade.GameHooks
         byte[] GetBytes(Emulator emulatorToUse)
         {
             byte[] buffer = new byte[MemoryRangeLength];
-            emulatorToUse.ReadGameMemory(MemoryRangeStart, MemoryRangeLength, out buffer);
+            int result = emulatorToUse.ReadGameMemory(MemoryRangeStart, MemoryRangeLength, out buffer);
+            Debug.Assert(result == 0, "Couldn't read process memory!");
             return buffer;
         }
 
