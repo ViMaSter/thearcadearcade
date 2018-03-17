@@ -2,26 +2,72 @@
 using System.Collections;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Drawing;
+
+using Newtonsoft.Json.Linq;
 
 namespace thearcadearcade.GameHooks
 {
     public partial class Emulator
     {
-        #region Static properties
-        string platform;
-        public string Platform
+        private class ConverstionHelper
         {
-            get { return platform; }
+            private static int GetHexVal(char hex)
+            {
+                int val = (int)hex;
+                return val - (val < 58 ? 48 : 55);
+            }
+
+            /// <summary>
+            /// IMPORTANT: Only supports uppercase-letters
+            /// </summary>
+            public static byte[] StringToByteArrayFastest(string hex)
+            {
+                if (hex.Length % 2 == 1)
+                    throw new Exception("The binary key cannot have an odd number of digits");
+
+                byte[] arr = new byte[hex.Length >> 1];
+
+                for (int i = 0; i < hex.Length >> 1; ++i)
+                {
+                    arr[i] = (byte)((GetHexVal(hex[i << 1]) << 4) + (GetHexVal(hex[(i << 1) + 1])));
+                }
+
+                return arr;
+            }
         }
 
-        string pathToExecutable;
-        public string PathToExecutable
+        enum MemoryOffsetType
         {
-            get { return pathToExecutable; }
+            OffsetFromStartOfRegion
         }
+
+        #region Static properties
+        private string pathToExecutable = "";
+        private string executableName = "";
+        public string ExecutableName
+        {
+            get
+            {
+                return executableName;
+            }
+        }
+
+        string platform = "";
+        public string Platform
+        {
+            get
+            {
+                return platform;
+            }
+        }
+
+
+        MemoryOffsetType lookupType;
+        byte[] lookupValue;
+        int lookupOffset;
         #endregion
 
         #region Dynamic properties
@@ -58,7 +104,7 @@ namespace thearcadearcade.GameHooks
             ERROR
         };
 
-        State currentState;
+        State currentState = State.INITIALIZING;
         public State CurrentState
         {
             get
@@ -224,7 +270,7 @@ namespace thearcadearcade.GameHooks
         /// </returns>
         public int StartGame(Game game, string replacementArgument)
         {
-            if (game.Platform != this.Platform)
+            if (game.Platform != Platform)
             {
                 return 1;
             }
@@ -261,7 +307,7 @@ namespace thearcadearcade.GameHooks
                     {
                         if (buffer[0] != 0xFF)
                         {
-                            this.CurrentWindowDimensions = Helper.WinAPI.WindowsReStyle(CurrentProcess.MainWindowHandle);
+                            CurrentWindowDimensions = Helper.WinAPI.WindowsReStyle(CurrentProcess.MainWindowHandle);
                             currentState = State.RUNNING;
                             break;
                         }
@@ -293,12 +339,8 @@ namespace thearcadearcade.GameHooks
             return 0;
         }
 
-        public Emulator(string _platform, string _pathToExecutable)
+        public void Start()
         {
-            currentState = State.INITIALIZING;
-            platform = _platform;
-            pathToExecutable = Path.Combine(Directory.GetCurrentDirectory(), "platforms", _platform, "executable", _pathToExecutable);
-
             if (!StartProcess(""))
             {
                 currentState = State.ERROR;
@@ -311,6 +353,37 @@ namespace thearcadearcade.GameHooks
         ~Emulator()
         {
             StopGame();
+        }
+
+        public static Emulator FromJSON(string pathToJSONFile)
+        {
+            string fileContents = File.ReadAllText(pathToJSONFile);
+            JObject emulatorInfo = JObject.Parse(fileContents);
+
+            string pathToExecutable = Path.Combine(Directory.GetCurrentDirectory(), "platforms", emulatorInfo["platform"].Value<string>(), "executable", emulatorInfo["executableName"].Value<string>() + ".exe");
+
+            string productVersion = FileVersionInfo.GetVersionInfo(pathToExecutable).ProductVersion;
+            JObject memoryAreaInfo = emulatorInfo.SelectToken("['memoryAreasByVersion']['"+ productVersion + "']") as JObject;
+
+            Debug.Assert(
+                memoryAreaInfo != null,
+                "Executable version not supported!",
+                "Executable version '{0}' is not supported. (Supported versions: {1})",
+                productVersion,
+                string.Join(", ", memoryAreaInfo.Properties().Select(versionNumber => versionNumber.Name))
+            );
+
+            Emulator emulator = new Emulator
+            {
+                executableName = emulatorInfo["executableName"].Value<string>(),
+                platform = emulatorInfo["platform"].Value<string>(),
+                pathToExecutable = pathToExecutable,
+                lookupType = (MemoryOffsetType)Enum.Parse(typeof(MemoryOffsetType), memoryAreaInfo["type"].Value<string>()),
+                lookupValue = ConverstionHelper.StringToByteArrayFastest(memoryAreaInfo["value"].Value<string>()),
+                lookupOffset = Int32.Parse(memoryAreaInfo["offset"].Value<string>())
+            };
+
+            return emulator;
         }
     }
 }

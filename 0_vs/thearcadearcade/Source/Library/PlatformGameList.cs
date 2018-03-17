@@ -1,5 +1,5 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace thearcadearcade.Library
@@ -7,6 +7,14 @@ namespace thearcadearcade.Library
     public class PlatformGameList
     {
         List<GameHooks.Game> games = new List<GameHooks.Game>();
+        public List<GameHooks.Game> Games
+        {
+            get
+            {
+                return games;
+            }
+        }
+
         string platform;
         public string Platform
         {
@@ -16,11 +24,11 @@ namespace thearcadearcade.Library
             }
         }
 
-        public PlatformGameList(string pathToGamesDirectory, string _platform)
+        public PlatformGameList(string _platform)
         {
             platform = _platform;
 
-            string[] gameConfigs = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), pathToGamesDirectory), "*.json");
+            string[] gameConfigs = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), "platforms", _platform,"games"), "*.json");
             foreach (string gameConfigFilePath in gameConfigs)
             {
                 GameHooks.Game game = GameHooks.Game.FromJSON(gameConfigFilePath);

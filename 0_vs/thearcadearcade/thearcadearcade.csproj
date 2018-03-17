@@ -76,6 +76,7 @@
     <Compile Include="Source\GameHooks\Emulator.cs" />
     <Compile Include="Source\GameHooks\Game.cs" />
     <Compile Include="Source\Helper\WinAPI.cs" />
+    <Compile Include="Source\Library\Manager.cs" />
     <Compile Include="Source\Library\PlatformGameList.cs" />
     <Compile Include="Source\Library\Player.cs" />
     <Compile Include="Source\Library\Scene.cs" />
@@ -124,7 +125,9 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="TheArcadeArcadeApp.config" />
+    <None Include="TheArcadeArcadeApp.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">

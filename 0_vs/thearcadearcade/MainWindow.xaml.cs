@@ -6,6 +6,12 @@ namespace thearcadearcade
     {
         public MainWindow()
         {
+#if DEBUG
+            CefSharp.Cef.Initialize(new CefSharp.CefSettings
+            {
+                RemoteDebuggingPort = 8999
+            });
+#endif
             InitializeComponent();
 
             UI.MenuHandler = new UI.CEF.DebugToolsMenuHandler();
@@ -18,7 +24,6 @@ namespace thearcadearcade
                     AppCallbacks callbacks = new AppCallbacks(UI);
                     ((TheArcadeArcadeApp)Application.Current).SetAppCallbacks(callbacks);
                     repository.Register("app", callbacks, true);
-
                 }
             };
 
@@ -26,7 +31,6 @@ namespace thearcadearcade
             this.Height = SystemParameters.WorkArea.Height;
             UI.Width = SystemParameters.WorkArea.Width;
             UI.Height = SystemParameters.WorkArea.Height;
-
         }
     }
 }

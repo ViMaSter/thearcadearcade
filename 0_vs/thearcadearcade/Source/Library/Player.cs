@@ -6,8 +6,6 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 
-using thearcadearcade.Helper;
-
 namespace thearcadearcade.Library
 {
     public class Player
@@ -73,6 +71,10 @@ namespace thearcadearcade.Library
 
         private void OnReady()
         {
+            if (emulator.CurrentState == GameHooks.Emulator.State.INITIALIZING)
+            {
+                emulator.Start();
+            }
             if (emulator.CurrentState == GameHooks.Emulator.State.READY)
             {
                 LaunchGame();
@@ -136,7 +138,7 @@ namespace thearcadearcade.Library
                 {
                     // ... either there are no acts left
                     emulator = null;
-                    WinAPI.SetForegroundWindow(Process.GetCurrentProcess().MainWindowHandle);
+                    Helper.WinAPI.SetForegroundWindow(Process.GetCurrentProcess().MainWindowHandle);
                     MessageBox.Show(string.Format("Current score: {0}", scorePerAct.Sum()), "Game completed!", MessageBoxButton.OK);
                     Environment.Exit(0);
                     // @TODO: Submit high-score
@@ -164,8 +166,8 @@ namespace thearcadearcade.Library
         public Player(GameHooks.Emulator emulator, Scene scene)
         {
             this.emulator = emulator;
-            this.activeScene = scene;
-            this.scorePerAct = new double[scene.ActAmount];
+            activeScene = scene;
+            scorePerAct = new double[scene.ActAmount];
 
             stateCallbacks[State.INITIALIZING] = delegate ()
             {
