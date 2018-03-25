@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.IO;
+using System.Windows;
 
 namespace thearcadearcade
 {
@@ -12,7 +13,14 @@ namespace thearcadearcade
                 RemoteDebuggingPort = 8999
             });
 #endif
+
             InitializeComponent();
+
+#if DEBUG
+            UI.Address = Path.Combine(Directory.GetCurrentDirectory(), "ui\\ingame.html#debug");
+#else
+            UI.Address = Path.Combine(Directory.GetCurrentDirectory(), "ui\\ingame.html");
+#endif
 
             UI.MenuHandler = new UI.CEF.DebugToolsMenuHandler();
 

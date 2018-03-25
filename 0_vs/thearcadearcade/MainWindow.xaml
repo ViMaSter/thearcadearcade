@@ -16,13 +16,6 @@
         <SolidColorBrush Opacity="0.0" Color="White"/>
     </Window.Background>
     <Grid>
-        <mc:AlternateContent>
-            <mc:Choice Requires="isDebug">
-                <cefSharp:ChromiumWebBrowser x:Name="UI"  Address="file:///C:/Users/vmahnke/Desktop/em/1_dependencies/ui/ingame.html#debug" />
-            </mc:Choice>
-            <mc:Fallback>
-                <cefSharp:ChromiumWebBrowser x:Name="UI"  Address="file:///C:/Users/vmahnke/Desktop/em/1_dependencies/ui/ingame.html" />
-            </mc:Fallback>
-        </mc:AlternateContent>
+        <cefSharp:ChromiumWebBrowser x:Name="UI"  Address="about:blank" />
     </Grid>
 </Window>
