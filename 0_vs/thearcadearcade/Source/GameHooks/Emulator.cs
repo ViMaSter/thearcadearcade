@@ -118,6 +118,11 @@ namespace thearcadearcade.GameHooks
         /// <summary>
         /// Sets up Process- and Process-handle-container
         /// </summary>
+        /// <returns>
+        /// Return codes:
+        /// 0 = success
+        /// 1 = couldn't open process (see error message)
+        /// </returns>
         void SetupProcessHandle()
         {
             // getting minimum & maximum address
@@ -128,6 +133,7 @@ namespace thearcadearcade.GameHooks
             ProcessAddressSpan[1] = sys_info.maximumApplicationAddress;
 
             ProcessHandle = Helper.WinAPI.OpenProcess(Helper.WinAPI.PROCESS_QUERY_INFORMATION | Helper.WinAPI.PROCESS_WM_READ, false, CurrentProcess.Id);
+            Debug.Assert(ProcessHandle != IntPtr.Zero, "Unable to open process", "Unable to open emulator process. Empty handled returned from OpenProcess(). Are you trying to open a process that was already started?");
         }
 
         void GetLookupValue(out byte[] expectedValue)
@@ -163,10 +169,9 @@ namespace thearcadearcade.GameHooks
             {
                 IntPtr currentProcessAddressPtr = new IntPtr(currentProcessAddress);
                 // 28 = sizeof(MEMORY_BASIC_INFORMATION)
-                Helper.WinAPI.VirtualQueryEx(ProcessHandle, currentProcessAddressPtr, out mem_basic_info, 28);
+                int sizeQuery = Helper.WinAPI.VirtualQueryEx(ProcessHandle, currentProcessAddressPtr, out mem_basic_info, 28);
 
-                int win32Error = Marshal.GetLastWin32Error();
-                if (win32Error != 0)
+                if (sizeQuery == 0)
                 {
                     return 2;
                 }
@@ -215,27 +220,20 @@ namespace thearcadearcade.GameHooks
             }
         }
 
-        void TryToAttachToProcess()
+        int AttachToProcess()
         {
-            Task task = Task.Run(async () =>
-            {
-                do
-                {
-                    SetupProcessHandle();
-                    int baseMemorySetupStatusCode = SetBaseMemory();
-                    if (baseMemorySetupStatusCode != 0)
-                    {
-                        Console.WriteLine("Couldn't find base memory; is there already a game running?");
-                        await Task.Delay(17);
-                        continue;
-                    }
+            SetupProcessHandle();
 
-                    currentState = State.READY;
-                    await Task.Delay(17);
-                    break;
-                }
-                while (true);
-            });
+            int baseMemorySetupStatusCode = SetBaseMemory();
+            if (baseMemorySetupStatusCode != 0)
+            {
+                Console.WriteLine("Couldn't find base memory of process; was there an emulator before startup?");
+                currentState = State.ERROR;
+                return baseMemorySetupStatusCode;
+            }
+
+            currentState = State.READY;
+            return 0;
         }
         #endregion
 
@@ -347,7 +345,10 @@ namespace thearcadearcade.GameHooks
                 Console.WriteLine(string.Format("Error starting emulator process {0}", platform));
                 return;
             }
-            TryToAttachToProcess();
+            Task.Run(new Action(async () => {
+                await Task.Delay(100); // TODO @VM NTH Magic amount of time to wait after a process started seems unstable; assuming WinAPI fails a better alternative?
+                AttachToProcess();
+            }));
         }
 
         ~Emulator()

@@ -83,6 +83,10 @@ namespace thearcadearcade.Library
             {
                 currentState = State.RUNNING;
             }
+            if (emulator.CurrentState == GameHooks.Emulator.State.ERROR)
+            {
+                currentState = State.ERROR;
+            }
         }
         #endregion
         #region RUNNING

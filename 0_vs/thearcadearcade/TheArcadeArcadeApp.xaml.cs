@@ -18,7 +18,7 @@ namespace thearcadearcade
         public void Exit()
         {
             Application.Current.Dispatcher.Invoke(() =>
-                System.Windows.Application.Current.Shutdown()
+                System.Windows.Application.Current.Shutdown(0)
             );
         }
     }
@@ -53,7 +53,7 @@ namespace thearcadearcade
             Task task = Task.Run(async () => {
                 do
                 {
-                    if (emulator.CurrentState == GameHooks.Emulator.State.RUNNING)
+                    if (player.CurrentState == Library.Player.State.RUNNING)
                     {
                         if (scene.CurrentActIndex == 0)
                         {
@@ -76,6 +76,12 @@ namespace thearcadearcade
                         data.State = emulator.CurrentState.ToString();
 
                         await Task.Delay(17);
+                    }
+                    if (player.CurrentState == Library.Player.State.ERROR)
+                    {
+                        Application.Current.Dispatcher.Invoke(() =>
+                            System.Windows.Application.Current.Shutdown(1)
+                        );
                     }
                 } while (true);
             });
