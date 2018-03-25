@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace thearcadearcade
 {
@@ -16,7 +17,9 @@ namespace thearcadearcade
 
         public void Exit()
         {
-            Environment.Exit(0);
+            Application.Current.Dispatcher.Invoke(() =>
+                System.Windows.Application.Current.Shutdown()
+            );
         }
     }
 
