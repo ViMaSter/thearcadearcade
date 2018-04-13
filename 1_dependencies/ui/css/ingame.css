@@ -1,0 +1,63 @@
+.blocker
+{
+    background: rgba(0, 0, 0, 0.8);
+    color: #F7F7F7;
+}
+
+.wrapper
+{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gameWrapper
+{
+    display: flex;
+    width: 100%;
+}
+
+.gameWrapper > *
+{
+    height: 100%;
+    margin: auto;
+}
+
+.blocker
+{
+    flex-grow: 1;
+    width: 100%;
+}
+
+.memoryItem
+{
+    position: relative;
+}
+
+.memoryItem .value
+{
+    position: absolute;
+    left: 50%;
+}
+
+.memoryItem .key, .memoryItem .value
+{
+    font-size: 26px;
+}
+
+.gameContainer
+{
+    padding: 10px 20px;
+}
+
+button
+{
+    width: 100%;
+    height: 10vh;
+    font-size: 2vh;
+}
