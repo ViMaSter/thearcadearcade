@@ -18,9 +18,10 @@ def getMSBuildPath():
                 return False
         except EnvironmentError as e:
             print("Couldn't read registry key '{}': {}".format(registryPath, e))
-            return False
+            if e.errno != 2:
+                return False
 
-    return True
+    return False
 
 from subprocess import call
 
